@@ -1,9 +1,11 @@
 import express from 'express';
-import { registerUser, loginUser } from '../controllers/userController.js';
+import { registerUser, loginUser, updateUser } from '../controllers/userController.js';
+import { protect } from '../middleware/authMiddleware.js'; // Middleware to protect routes
 
 const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/register', registerUser); // Register route
+router.post('/login', loginUser);       // Login route
+router.put('/update', protect, updateUser); // Update user details (protected route)
 
 export default router;
