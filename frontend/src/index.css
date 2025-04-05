@@ -1,0 +1,232 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 33% 14%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 43 100% 77%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-starrynight-dark text-foreground font-body;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(255, 218, 138, 0.07) 0%, transparent 10%),
+      radial-gradient(circle at 70% 60%, rgba(255, 218, 138, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 50% 50%, rgba(255, 218, 138, 0.05) 0%, transparent 15%),
+      radial-gradient(circle at 80% 10%, rgba(255, 218, 138, 0.07) 0%, transparent 15%),
+      radial-gradient(circle at 15% 80%, rgba(255, 218, 138, 0.08) 0%, transparent 18%),
+      linear-gradient(to bottom, #1A1F2C, #31446F);
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-comic;
+  }
+  
+  ::selection {
+    @apply bg-superhero-yellow/30 text-white;
+  }
+}
+
+@layer components {
+  .comic-border {
+    position: relative;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px black;
+  }
+
+  .comic-btn {
+    @apply bg-superhero-yellow text-superhero-black font-comic px-5 py-3 text-lg uppercase 
+      transition-all transform hover:scale-105 focus:scale-105
+      hover:shadow-[4px_4px_0px_black] focus:shadow-[4px_4px_0px_black]
+      active:shadow-[2px_2px_0px_black] active:translate-x-[2px] active:translate-y-[2px]
+      rounded border-2 border-superhero-black;
+  }
+
+  .star {
+    @apply absolute inline-block bg-starrynight-gold rounded-full animate-star-shine;
+  }
+
+  .product-card {
+    @apply relative bg-gradient-to-b from-starrynight-blue to-starrynight-dark rounded-lg overflow-hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .product-card:hover {
+    @apply transform -translate-y-2 shadow-[0_0_25px_rgba(255,218,138,0.4)];
+  }
+
+  .product-card img {
+    @apply transition-transform duration-500;
+  }
+  
+  .product-card:hover img {
+    @apply transform scale-105;
+  }
+
+  .comic-bubble {
+    @apply relative bg-white text-superhero-black font-comic p-4 rounded-lg;
+    filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15));
+  }
+
+  .comic-bubble::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    bottom: -20px;
+    left: 20px;
+    border: 10px solid transparent;
+    border-top-color: white;
+  }
+  
+  .glow-effect {
+    @apply relative;
+    overflow: hidden;
+  }
+  
+  .glow-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 218, 138, 0.2) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  
+  .glow-effect:hover::after {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 100%
+    );
+    transform: skewX(-25deg);
+    z-index: 2;
+    transition: all 0.75s;
+    opacity: 0;
+  }
+  
+  .shine-effect:hover::before {
+    animation: shine 1.5s;
+    opacity: 1;
+  }
+  
+  @keyframes shine {
+    100% {
+      left: 125%;
+    }
+  }
+}
+
+@layer utilities {
+  .font-comic {
+    font-family: 'Bangers', cursive;
+    letter-spacing: 1px;
+  }
+
+  .font-body {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .text-shadow-glow {
+    text-shadow: 0 0 5px currentColor, 0 0 20px rgba(255, 218, 138, 0.7);
+  }
+}
+
+@keyframes shine {
+  100% {
+    left: 125%;
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 5s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
