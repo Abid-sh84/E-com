@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+// import { FcGoogle } from "react-icons/fc";
 
 const AuthForms = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +31,153 @@ const AuthForms = () => {
       setUserDetails(JSON.parse(user));
     }
   }, []);
+
+  // Load Google API script
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      return new Promise<void>((resolve) => {
+        // Check if the script is already loaded
+        if (
+          document.querySelector(
+            'script[src="https://accounts.google.com/gsi/client"]'
+          )
+        ) {
+          resolve();
+          return;
+        }
+
+        // Load the Google API Client
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        document.body.appendChild(script);
+      });
+    };
+
+    const initializeGoogleAuth = async () => {
+      await loadGoogleScript();
+
+      // After script has loaded, check if Google API is available
+      if (window.google && !isLoggedIn) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id:
+              "754449509657-hopidveuu7fcp4oofftbl9r3fcah7do9.apps.googleusercontent.com",
+            callback: handleGoogleResponse,
+          });
+
+          // Render the button only after initialization
+          renderGoogleButton();
+        } catch (error) {
+          console.error("Error initializing Google Sign-In:", error);
+        }
+      }
+    };
+
+    initializeGoogleAuth();
+
+    return () => {
+      // Cleanup any Google Sign-In related resources if needed
+    };
+  }, [isLoggedIn]);
+
+  // Handle Google authentication response
+  const handleGoogleResponse = async (response) => {
+    setIsLoading(true);
+    try {
+      // Send the ID token to backend for verification
+      const backendResponse = await fetch(
+        "http://localhost:5000/api/users/google-auth",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ credential: response.credential }),
+        }
+      );
+
+      const data = await backendResponse.json().catch(() => {
+        // If JSON parsing fails, create a default error object
+        return { message: "Server returned an invalid response" };
+      });
+
+      if (backendResponse.ok) {
+        toast({
+          title: "Google Login Successful",
+          description: `Welcome, ${data.user.firstName}!`,
+        });
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setIsLoggedIn(true);
+        setUserDetails(data.user);
+      } else {
+        // More specific error handling based on status code
+        let errorMessage = data.message || "Google authentication failed";
+
+        if (backendResponse.status === 500) {
+          errorMessage =
+            "Server error occurred. Please try again later or contact support.";
+          console.error("Server error details:", data);
+        }
+
+        toast({
+          title: "Authentication Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Google auth error:", error);
+      toast({
+        title: "Error",
+        description:
+          "Something went wrong with Google authentication. Please try again later.",
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const renderGoogleButton = () => {
+    if (window.google) {
+      try {
+        // Try to find the button element
+        const buttonElement = document.getElementById("google-login-button");
+        if (buttonElement) {
+          window.google.accounts.id.renderButton(buttonElement, {
+            theme: "outline",
+            size: "large",
+            width: 250, // Use numeric value instead of percentage
+            text: "signin_with",
+          });
+        }
+      } catch (error) {
+        console.error("Error rendering Google button:", error);
+      }
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    if (window.google) {
+      try {
+        window.google.accounts.id.prompt();
+      } catch (error) {
+        console.error("Error prompting Google Sign-In:", error);
+        toast({
+          title: "Error",
+          description: "Google sign-in is not available right now.",
+        });
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: "Google sign-in is not available right now.",
+      });
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -104,6 +253,11 @@ const AuthForms = () => {
   };
 
   const handleLogout = () => {
+    // Sign out from Google as well
+    if (window.google) {
+      window.google.accounts.id.disableAutoSelect();
+    }
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setIsLoggedIn(false);
@@ -150,6 +304,7 @@ const AuthForms = () => {
 
     setIsLoading(false);
   };
+
   if (isLoggedIn) {
     return (
       <div className="container mx-auto px-4 py-12">
@@ -277,6 +432,30 @@ const AuthForms = () => {
                 >
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
+
+                <div className="relative my-4">
+                  <Separator />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="bg-starrynight-blue px-2 text-xs text-starrynight-light">
+                      OR
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  id="google-login-button"
+                  className="w-full flex justify-center mb-2"
+                ></div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                >
+                  Sign in with Google
+                </Button>
               </form>
             </TabsContent>
 
@@ -349,6 +528,25 @@ const AuthForms = () => {
                 >
                   {isLoading ? "Creating Account..." : "Register"}
                 </Button>
+
+                <div className="relative my-4">
+                  <Separator />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="bg-starrynight-blue px-2 text-xs text-starrynight-light">
+                      OR
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
+                >
+                  Sign in with Google
+                </Button>
               </form>
             </TabsContent>
           </Tabs>
@@ -357,5 +555,21 @@ const AuthForms = () => {
     </div>
   );
 };
+
+// Add TypeScript declarations for the Google API
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          prompt: (callback?: () => void) => void;
+          renderButton: (element: HTMLElement, options: any) => void;
+          disableAutoSelect: () => void;
+        };
+      };
+    };
+  }
+}
 
 export default AuthForms;
