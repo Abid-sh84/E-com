@@ -70,6 +70,7 @@ npm run dev
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_atlas_url
+JWT_SECRET=your_seceret_key
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 ```
