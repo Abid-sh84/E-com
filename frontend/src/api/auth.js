@@ -1,0 +1,164 @@
+import axios from 'axios';
+
+const API_URL = 'http://localhost:5000/api';
+
+// Create an axios instance for auth requests
+const authClient = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add auth token to requests if it exists
+const setAuthToken = token => {
+  if (token) {
+    authClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem('token', token);
+  } else {
+    delete authClient.defaults.headers.common['Authorization'];
+    localStorage.removeItem('token');
+  }
+};
+
+/**
+ * Login user with email and password
+ * @param {string} email 
+ * @param {string} password
+ * @returns {Object} user data with token
+ */
+export const login = async (email, password) => {
+  try {
+    const response = await authClient.post('/users/login', { email, password });
+    
+    if (response.data && response.data.token) {
+      setAuthToken(response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data));
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 'Failed to login. Please check your credentials.'
+    );
+  }
+};
+
+/**
+ * Register a new user
+ * @param {string} name 
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {Object} user data with token
+ */
+export const register = async (name, email, password) => {
+  try {
+    const response = await authClient.post('/users', { name, email, password });
+    
+    if (response.data && response.data.token) {
+      setAuthToken(response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data));
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 'Failed to register. Please try again.'
+    );
+  }
+};
+
+/**
+ * Authenticate a user with Google
+ * @param {string} credential - Google OAuth credential
+ * @param {Object} userData - Optional user data from Google
+ * @returns {Object} user data with token
+ */
+export const googleAuth = async (credential, userData = null) => {
+  try {
+    console.log("Sending Google credential to backend");
+    
+    // Create the request payload
+    const payload = { credential };
+    if (userData) {
+      // If we have additional user data (from OAuth2 flow)
+      payload.userData = userData;
+    }
+    
+    const response = await authClient.post('/users/google', payload);
+    
+    if (response.data && response.data.token) {
+      // Set the token in auth header for future requests
+      setAuthToken(response.data.token);
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error("API Error during Google auth:", error);
+    throw new Error(
+      error.response?.data?.message || 'Failed to authenticate with Google. Please try again.'
+    );
+  }
+};
+
+/**
+ * Get the current user's profile
+ * @returns {Object} user profile data
+ */
+export const getUserProfile = async () => {
+  try {
+    // Get token from local storage
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+    }
+    
+    const response = await authClient.get('/users/profile');
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 'Failed to get user profile.'
+    );
+  }
+};
+
+/**
+ * Update user profile data
+ * @param {Object} userData 
+ * @returns {Object} updated user data
+ */
+export const updateUserProfile = async (userData) => {
+  try {
+    const response = await authClient.put('/users/profile', userData);
+    
+    if (response.data && response.data.token) {
+      setAuthToken(response.data.token);
+      
+      // Update the stored user data
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const updatedUser = { ...currentUser, ...response.data };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 'Failed to update profile.'
+    );
+  }
+};
+
+/**
+ * Logout user
+ */
+export const logout = () => {
+  setAuthToken(null);
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+};
+
+// Initialize token from localStorage when this module is imported
+const token = localStorage.getItem('token');
+if (token) {
+  setAuthToken(token);
+}

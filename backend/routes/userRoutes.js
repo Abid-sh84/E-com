@@ -1,17 +1,43 @@
-import express from "express";
+import express from 'express';
 import {
+  authUser,
   registerUser,
-  loginUser,
-  updateUser,
-  googleAuth,
-} from "../controllers/userController.js";
-import { protect } from "../middleware/authMiddleware.js"; // Middleware to protect routes
+  getUserProfile,
+  updateUserProfile,
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist,
+  getUsers,
+} from '../controllers/userController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post("/register", registerUser); // Register route
-router.post("/login", loginUser); // Login route
-router.put("/update", protect, updateUser); // Update user details (protected route)
-router.post("/google-auth", googleAuth); // Google authentication route
+router.route('/')
+  .post(registerUser)
+  .get(protect, admin, getUsers);
+
+router.post('/login', authUser);
+
+router.route('/profile')
+  .get(protect, getUserProfile)
+  .put(protect, updateUserProfile);
+
+router.route('/addresses')
+  .post(protect, addAddress);
+
+router.route('/addresses/:id')
+  .put(protect, updateAddress)
+  .delete(protect, deleteAddress);
+
+router.route('/wishlist')
+  .get(protect, getWishlist)
+  .post(protect, addToWishlist);
+
+router.route('/wishlist/:id')
+  .delete(protect, removeFromWishlist);
 
 export default router;

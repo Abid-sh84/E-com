@@ -1,180 +1,295 @@
-import User from "../models/User.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import asyncHandler from 'express-async-handler';
+import User from '../models/userModel.js';
+import generateToken from '../utils/generateToken.js';
 
-// Register User
-export const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-
-  try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    // Create new user
-    const user = new User({ firstName, lastName, email, password });
-    await user.save();
-
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-// Login User
-export const loginUser = async (req, res) => {
+// @desc    Auth user & get token
+// @route   POST /api/users/login
+// @access  Public
+const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    // Check if user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+  const user = await User.findOne({ email });
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Generate JWT
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+  if (user && (await user.matchPassword(password))) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+      token: generateToken(user._id),
     });
-
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
   }
-};
+});
 
-// Update User
-export const updateUser = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+// @desc    Register a new user
+// @route   POST /api/users
+// @access  Public
+const registerUser = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
 
-  try {
-    // Find user by ID
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+  const userExists = await User.findOne({ email });
 
-    // Update fields if provided
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
+  if (userExists) {
+    res.status(400);
+    throw new Error('User already exists');
+  }
 
-    if (email) {
-      // Check if the new email is already in use
-      const emailExists = await User.findOne({ email });
-      if (emailExists && emailExists.id !== req.user.id) {
-        return res.status(400).json({ message: "Email is already in use" });
-      }
-      user.email = email;
-    }
+  const user = await User.create({
+    name,
+    email,
+    password,
+  });
 
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+  if (user) {
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(400);
+    throw new Error('Invalid user data');
+  }
+});
+
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+      addresses: user.addresses,
+      wishlist: user.wishlist,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.avatar = req.body.avatar || user.avatar;
+    
+    if (req.body.password) {
+      user.password = req.body.password;
     }
 
     const updatedUser = await user.save();
 
-    res.status(200).json({
-      message: "User updated successfully",
-      user: {
-        id: updatedUser._id,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        email: updatedUser.email,
-      },
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      avatar: updatedUser.avatar,
+      token: generateToken(updatedUser._id),
     });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
   }
-};
+});
 
-// Google Authentication
-export const googleAuth = async (req, res) => {
-  const { credential } = req.body;
+// @desc    Add address to user profile
+// @route   POST /api/users/addresses
+// @access  Private
+const addAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
 
-  try {
-    if (!credential) {
-      return res.status(400).json({ message: "No credential provided" });
-    }
-
-    // Decode the JWT token from Google (without validation)
-    // In production, you should verify this token with Google's API
-    const decoded = jwt.decode(credential);
-
-    if (!decoded || !decoded.email) {
-      return res.status(400).json({ message: "Invalid Google token" });
-    }
-
-    // Extract user information from the decoded token
-    const {
-      email,
-      given_name: firstName,
-      family_name: lastName,
-      sub: googleId,
-      picture: profilePicture,
-    } = decoded;
-
-    // Check if user exists with this email
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      // If user doesn't exist, create a new one
-      user = new User({
-        firstName: firstName || "User",
-        lastName: lastName || "",
-        email,
-        googleId,
-        profilePicture,
-        password: await bcrypt.hash(
-          Math.random().toString(36).slice(-8) + Date.now().toString(),
-          10
-        ),
-        isGoogleUser: true,
+  if (user) {
+    const { 
+      name, 
+      street, 
+      city, 
+      state, 
+      zip, 
+      country, 
+      isDefault 
+    } = req.body;
+    
+    // If new address is default, unset any existing default
+    if (isDefault) {
+      user.addresses.forEach(address => {
+        address.isDefault = false;
       });
-      await user.save();
-    } else if (!user.googleId) {
-      // If user exists but has no googleId (was registered via email), link accounts
-      user.googleId = googleId;
-      user.isGoogleUser = true;
-      if (profilePicture) user.profilePicture = profilePicture;
-      await user.save();
+    }
+    
+    // Add new address
+    user.addresses.push({
+      name,
+      street,
+      city,
+      state,
+      zip,
+      country,
+      isDefault,
+    });
+
+    await user.save();
+    res.status(201).json(user.addresses);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user address
+// @route   PUT /api/users/addresses/:id
+// @access  Private
+const updateAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const addressId = req.params.id;
+
+  if (user) {
+    const addressIndex = user.addresses.findIndex(
+      a => a._id.toString() === addressId
+    );
+
+    if (addressIndex === -1) {
+      res.status(404);
+      throw new Error('Address not found');
     }
 
-    // Generate JWT
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    // If updating to default, unset any existing default
+    if (req.body.isDefault) {
+      user.addresses.forEach(address => {
+        address.isDefault = false;
+      });
+    }
+
+    // Update address fields
+    Object.keys(req.body).forEach(key => {
+      user.addresses[addressIndex][key] = req.body[key];
     });
 
-    res.status(200).json({
-      message: "Google authentication successful",
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        profilePicture: user.profilePicture,
-      },
-    });
-  } catch (error) {
-    console.error("Google auth error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    await user.save();
+    res.json(user.addresses);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
   }
+});
+
+// @desc    Delete user address
+// @route   DELETE /api/users/addresses/:id
+// @access  Private
+const deleteAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const addressId = req.params.id;
+
+  if (user) {
+    user.addresses = user.addresses.filter(
+      address => address._id.toString() !== addressId
+    );
+
+    await user.save();
+    res.json(user.addresses);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Add product to wishlist
+// @route   POST /api/users/wishlist
+// @access  Private
+const addToWishlist = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
+  
+  const user = await User.findById(req.user._id);
+  
+  if (user) {
+    const alreadyInWishlist = user.wishlist.find(
+      item => item.toString() === productId
+    );
+    
+    if (!alreadyInWishlist) {
+      user.wishlist.push(productId);
+      await user.save();
+    }
+    
+    res.status(201).json(user.wishlist);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Remove product from wishlist
+// @route   DELETE /api/users/wishlist/:id
+// @access  Private
+const removeFromWishlist = asyncHandler(async (req, res) => {
+  const productId = req.params.id;
+  
+  const user = await User.findById(req.user._id);
+  
+  if (user) {
+    user.wishlist = user.wishlist.filter(
+      item => item.toString() !== productId
+    );
+    
+    await user.save();
+    res.json(user.wishlist);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Get user wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+const getWishlist = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate('wishlist');
+  
+  if (user) {
+    res.json(user.wishlist);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Private/Admin
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.json(users);
+});
+
+export {
+  authUser,
+  registerUser,
+  getUserProfile,
+  updateUserProfile,
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist,
+  getUsers,
 };
