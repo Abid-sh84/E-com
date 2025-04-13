@@ -21,7 +21,6 @@ An immersive e-commerce web application for purchasing superhero-themed T-shirts
 This project is built with:
 
 - ⚡ **Vite** – Next Generation Frontend Tooling  
-- 🧠 **TypeScript** – Strongly typed JavaScript  
 - ⚛️ **React** – Component-based UI library  
 - 🧩 **shadcn/ui** – Radix UI + Tailwind-based components  
 - 🎨 **Tailwind CSS** – Utility-first styling  
