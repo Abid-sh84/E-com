@@ -18,38 +18,19 @@ const HomePage = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-indigo-950 text-white">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-screen md:h-[85vh] flex items-center overflow-hidden">
-        {/* Starry Night Background Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950 to-blue-900 overflow-hidden">
-          {/* Stars effect using pseudo-elements will be added via a style tag */}
-          <div className="absolute inset-0 opacity-30" 
-              style={{
-                background: 'radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px)',
-                backgroundSize: '550px 550px, 350px 350px, 250px 250px',
-                backgroundPosition: '0 0, 40px 60px, 130px 270px',
-                animation: 'starsMove 200s linear infinite'
-              }}>
-          </div>
-          
-          {/* Swirling effect overlay */}
-          <div className="absolute inset-0 bg-indigo-900/30 mix-blend-overlay animate-pulse duration-1000"></div>
-        </div>
+      <section className="relative h-[80vh] flex items-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/90 to-indigo-900/70 z-10"></div>
+        <div className="absolute inset-0 bg-[url('/images/hero-bg.jpg')] bg-cover bg-center animate-pulse-slow"></div>
 
-        {/* Content */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-yellow-300 mb-6 transform -rotate-1 animate-fadeIn shadow-lg shadow-yellow-300/20"
-              style={{ textShadow: '0 0 10px rgba(255, 229, 179, 0.5), 0 0 20px rgba(255, 229, 179, 0.3)' }}>
-            Unleash Your Inner Hero
-          </h1>
-          <p className="text-xl md:text-2xl text-indigo-200 max-w-3xl mx-auto mb-8 opacity-90">
+          <h1 className="hero-title mb-6 animate-fade-in">Unleash Your Inner Hero</h1>
+          <p className="text-xl md:text-2xl text-indigo-200 max-w-3xl mx-auto mb-8 animate-fade-in-delay">
             Discover our exclusive collection of superhero t-shirts inspired by the cosmic beauty of Starry Night
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link 
-              to="/products" 
-              className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-8 py-4 rounded-md border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 hover:scale-105 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-delay-2">
+            <Link to="/products" className="comic-button">
               Shop Collection
             </Link>
             <Link
@@ -63,27 +44,16 @@ const HomePage = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-indigo-900/70 backdrop-blur-sm relative overflow-hidden">
-        {/* Van Gogh swirl background effect */}
-        <div className="absolute inset-0 opacity-10 bg-cover bg-center mix-blend-soft-light"
-             style={{
-               backgroundImage: "url('https://i.imgur.com/JvlO0zE.jpg')",
-               filter: "blur(3px)"
-             }}>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform rotate-1"
-              style={{ textShadow: '2px 2px 0px black' }}>
-            Shop by Universe
-          </h2>
+      <section className="py-16 bg-indigo-900/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-yellow-300 text-center mb-12">Shop by Universe</h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {categories.map((category) => (
               <Link
                 key={category.id}
                 to={`/products?category=${category.slug}`}
-                className="group relative h-64 overflow-hidden rounded-lg border-2 border-black transform hover:-rotate-1 transition-all duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.7)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.7)]"
+                className="group relative h-64 overflow-hidden rounded-lg"
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-indigo-950 via-indigo-950/70 to-transparent z-10"></div>
                 <img
@@ -92,9 +62,7 @@ const HomePage = () => {
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-                  <h3 className="text-xl font-bold text-white" style={{ textShadow: '2px 2px 0px rgba(0,0,0,0.8)' }}>
-                    {category.name}
-                  </h3>
+                  <h3 className="text-xl font-bold text-white">{category.name}</h3>
                   <p className="text-indigo-300 text-sm mt-1">{category.count} Products</p>
                 </div>
               </Link>
@@ -104,26 +72,14 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 relative">
-        {/* Small decorative stars background */}
-        <div className="absolute inset-0 opacity-30" 
-            style={{
-              background: 'radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 20px)',
-              backgroundSize: '120px 120px',
-              backgroundPosition: '0 0'
-            }}>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform -rotate-1"
-              style={{ textShadow: '2px 2px 0px black' }}>
-            Featured Products
-          </h2>
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-yellow-300 text-center mb-12">Featured Products</h2>
 
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-white rounded-lg border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.7)] transform rotate-1 animate-pulse h-96">
+                <div key={index} className="comic-card animate-pulse h-96">
                   <div className="h-64 bg-indigo-300/20 rounded-t-lg"></div>
                   <div className="p-4 space-y-3">
                     <div className="h-4 bg-indigo-300/20 rounded"></div>
@@ -136,42 +92,13 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.7)] transform rotate-1 hover:rotate-0 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,0.7)] transition-all duration-300 hover:translate-y-1 overflow-hidden">
-                  <Link to={`/products/${product.id}`}>
-                    <div className="relative h-64 overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                      {product.discount && (
-                        <div className="absolute top-2 right-2 bg-red-600 text-white font-bold px-3 py-1 rounded-full border-2 border-black transform -rotate-12 shadow-md">
-                          {product.discount}% OFF!
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4 text-indigo-950">
-                      <h3 className="text-xl font-bold uppercase tracking-wide">{product.name}</h3>
-                      <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="bg-red-600 text-white font-bold px-3 py-1 rounded-full border border-black transform -rotate-2 inline-block">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        <button className="bg-yellow-400 text-indigo-950 font-bold px-3 py-1 rounded border border-black hover:bg-yellow-300 transition-colors">
-                          Add to cart
-                        </button>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
 
           <div className="text-center mt-12">
-            <Link 
-              to="/products" 
-              className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-8 py-4 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 hover:scale-105 transition-all inline-block">
+            <Link to="/products" className="comic-button">
               View All Products
             </Link>
           </div>
@@ -179,34 +106,18 @@ const HomePage = () => {
       </section>
 
       {/* Comic Strip Banner */}
-      <section className="py-16 bg-indigo-800 relative">
-        {/* Comic halftone pattern overlay */}
-        <div className="absolute inset-0 opacity-10"
-             style={{
-               backgroundImage: "url('https://i.imgur.com/JBMEt1t.png')",
-               backgroundSize: "100px 100px"
-             }}>
-        </div>
-        
+      <section className="py-16 bg-[url('/images/comic-strip-bg.jpg')] bg-cover bg-fixed relative">
+        <div className="absolute inset-0 bg-indigo-950/70"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-white p-8 rounded-lg max-w-3xl mx-auto transform rotate-1 shadow-xl border-2 border-black">
-            <h2 className="text-3xl font-bold text-indigo-950 mb-4">
-              Join Our Superhero Community!
-            </h2>
+          <div className="bg-white p-8 rounded-lg max-w-3xl mx-auto transform rotate-1 shadow-xl">
+            <h2 className="text-3xl font-bold text-indigo-950 mb-4">Join Our Superhero Community!</h2>
             <p className="text-indigo-700 mb-6">
               Subscribe to get exclusive offers, new arrival alerts, and 10% off your first order!
             </p>
 
             <form className="flex flex-col sm:flex-row gap-2">
-              <input 
-                type="email" 
-                placeholder="Your email address" 
-                className="border-2 border-black py-3 px-4 rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex-grow" 
-                required 
-              />
-              <button 
-                type="submit" 
-                className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-4 py-3 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 transition-all whitespace-nowrap">
+              <input type="email" placeholder="Your email address" className="comic-input flex-grow" required />
+              <button type="submit" className="comic-button whitespace-nowrap">
                 Subscribe Now
               </button>
             </form>
@@ -215,20 +126,11 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 relative">
-        {/* Adding subtle spiral patterns for Starry Night effect */}
-        <div className="absolute inset-0 opacity-5"
-             style={{
-               backgroundImage: "url('https://i.imgur.com/8gTzLXH.png')",
-               backgroundSize: "cover",
-               mixBlendMode: "screen"
-             }}>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform -rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -239,16 +141,14 @@ const HomePage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Premium Quality
-              </h3>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Premium Quality</h3>
               <p className="text-indigo-300">
                 Our t-shirts are made from high-quality materials for maximum comfort and durability.
               </p>
             </div>
 
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -264,16 +164,14 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Free Shipping
-              </h3>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Free Shipping</h3>
               <p className="text-indigo-300">
                 Enjoy free shipping on all orders over $50. Fast delivery to your doorstep.
               </p>
             </div>
 
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform -rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -289,33 +187,12 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Easy Returns
-              </h3>
-              <p className="text-indigo-300">
-                Not satisfied? Return within 30 days for a full refund or exchange.
-              </p>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Easy Returns</h3>
+              <p className="text-indigo-300">Not satisfied? Return within 30 days for a full refund or exchange.</p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Additional CSS for animations */}
-      <style jsx>{`
-        @keyframes starsMove {
-          from { background-position: 0 0, 40px 60px, 130px 270px; }
-          to { background-position: 550px 550px, 390px 610px, 680px 820px; }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out forwards;
-        }
-      `}</style>
     </div>
   )
 }
