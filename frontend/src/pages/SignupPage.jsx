@@ -134,7 +134,7 @@ const SignupPage = () => {
                 </svg>
               </div>
             </div>
-            <h2 className="mt-4 text-center text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-purple-400 to-blue-400">
+            <h2 className="mt-4 text-center text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-purple-400 to-blue-400 animate-float">
               JOIN THE HEROES
             </h2>
             <p className="mt-2 text-center text-sm text-indigo-300">
