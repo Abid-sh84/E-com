@@ -39,8 +39,12 @@ const HomePage = () => {
 
         {/* Content */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-yellow-300 mb-6 transform -rotate-1 animate-fadeIn shadow-lg shadow-yellow-300/20"
-              style={{ textShadow: '0 0 10px rgba(255, 229, 179, 0.5), 0 0 20px rgba(255, 229, 179, 0.3)' }}>
+          {/* Fixed the heading to remove the visible rectangle background issue */}
+          <h1 className="text-5xl md:text-7xl font-bold text-yellow-300 mb-6 transform -rotate-1 inline-block"
+              style={{ 
+                textShadow: '0 0 10px rgba(255, 229, 179, 0.5), 0 0 20px rgba(255, 229, 179, 0.3)',
+                fontFamily: 'Bangers, cursive'
+              }}>
             Unleash Your Inner Hero
           </h1>
           <p className="text-xl md:text-2xl text-indigo-200 max-w-3xl mx-auto mb-8 opacity-90">
@@ -49,13 +53,12 @@ const HomePage = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link 
               to="/products" 
-              className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-8 py-4 rounded-md border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 hover:scale-105 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
+              className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-8 py-4 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 hover:scale-105 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none">
               Shop Collection
             </Link>
             <Link
               to="/products?category=new"
-              className="px-6 py-3 bg-indigo-700 text-white font-bold rounded-md transform transition-all hover:scale-105 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/50 active:scale-95"
-            >
+              className="px-6 py-3 bg-indigo-700 text-white font-bold rounded-md transform transition-all hover:scale-105 hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-700/50 active:scale-95">
               New Arrivals
             </Link>
           </div>
@@ -73,8 +76,11 @@ const HomePage = () => {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform rotate-1"
-              style={{ textShadow: '2px 2px 0px black' }}>
+          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform rotate-1 inline-block"
+              style={{ 
+                textShadow: '2px 2px 0px black',
+                fontFamily: 'Bangers, cursive'
+              }}>
             Shop by Universe
           </h2>
 
@@ -115,8 +121,11 @@ const HomePage = () => {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform -rotate-1"
-              style={{ textShadow: '2px 2px 0px black' }}>
+          <h2 className="text-4xl font-bold text-yellow-300 text-center mb-12 transform -rotate-1 inline-block"
+              style={{ 
+                textShadow: '2px 2px 0px black',
+                fontFamily: 'Bangers, cursive'
+              }}>
             Featured Products
           </h2>
 
@@ -179,34 +188,18 @@ const HomePage = () => {
       </section>
 
       {/* Comic Strip Banner */}
-      <section className="py-16 bg-indigo-800 relative">
-        {/* Comic halftone pattern overlay */}
-        <div className="absolute inset-0 opacity-10"
-             style={{
-               backgroundImage: "url('https://i.imgur.com/JBMEt1t.png')",
-               backgroundSize: "100px 100px"
-             }}>
-        </div>
-        
+      <section className="py-16 bg-[url('/images/comic-strip-bg.jpg')] bg-cover bg-fixed relative">
+        <div className="absolute inset-0 bg-indigo-950/70"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-white p-8 rounded-lg max-w-3xl mx-auto transform rotate-1 shadow-xl border-2 border-black">
-            <h2 className="text-3xl font-bold text-indigo-950 mb-4">
-              Join Our Superhero Community!
-            </h2>
+          <div className="bg-white p-8 rounded-lg max-w-3xl mx-auto transform rotate-1 shadow-xl">
+            <h2 className="text-3xl font-bold text-indigo-950 mb-4">Join Our Superhero Community!</h2>
             <p className="text-indigo-700 mb-6">
               Subscribe to get exclusive offers, new arrival alerts, and 10% off your first order!
             </p>
 
             <form className="flex flex-col sm:flex-row gap-2">
-              <input 
-                type="email" 
-                placeholder="Your email address" 
-                className="border-2 border-black py-3 px-4 rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex-grow" 
-                required 
-              />
-              <button 
-                type="submit" 
-                className="bg-yellow-400 text-indigo-950 font-bold text-lg uppercase px-4 py-3 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transform -rotate-1 hover:rotate-0 transition-all whitespace-nowrap">
+              <input type="email" placeholder="Your email address" className="comic-input flex-grow" required />
+              <button type="submit" className="comic-button whitespace-nowrap">
                 Subscribe Now
               </button>
             </form>
@@ -215,20 +208,11 @@ const HomePage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 relative">
-        {/* Adding subtle spiral patterns for Starry Night effect */}
-        <div className="absolute inset-0 opacity-5"
-             style={{
-               backgroundImage: "url('https://i.imgur.com/8gTzLXH.png')",
-               backgroundSize: "cover",
-               mixBlendMode: "screen"
-             }}>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform -rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -239,16 +223,14 @@ const HomePage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Premium Quality
-              </h3>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Premium Quality</h3>
               <p className="text-indigo-300">
                 Our t-shirts are made from high-quality materials for maximum comfort and durability.
               </p>
             </div>
 
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -264,16 +246,14 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Free Shipping
-              </h3>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Free Shipping</h3>
               <p className="text-indigo-300">
                 Enjoy free shipping on all orders over $50. Fast delivery to your doorstep.
               </p>
             </div>
 
-            <div className="text-center p-6 bg-indigo-900/50 rounded-lg border border-indigo-800 transform -rotate-1 hover:rotate-0 transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-black">
+            <div className="text-center p-6 bg-indigo-900/50 rounded-lg">
+              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-8 w-8 text-indigo-950"
@@ -289,12 +269,8 @@ const HomePage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2" style={{ textShadow: '1px 1px 0px black' }}>
-                Easy Returns
-              </h3>
-              <p className="text-indigo-300">
-                Not satisfied? Return within 30 days for a full refund or exchange.
-              </p>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">Easy Returns</h3>
+              <p className="text-indigo-300">Not satisfied? Return within 30 days for a full refund or exchange.</p>
             </div>
           </div>
         </div>
@@ -310,10 +286,6 @@ const HomePage = () => {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out forwards;
         }
       `}</style>
     </div>
