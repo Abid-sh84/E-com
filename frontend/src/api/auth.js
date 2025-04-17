@@ -14,9 +14,11 @@ const authClient = axios.create({
 const setAuthToken = token => {
   if (token) {
     authClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set for global axios too
     localStorage.setItem('token', token);
   } else {
     delete authClient.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common['Authorization']; // Clear for global axios too
     localStorage.removeItem('token');
   }
 };
@@ -29,15 +31,18 @@ const setAuthToken = token => {
  */
 export const login = async (email, password) => {
   try {
+    console.log('Attempting login with:', { email }); // Debug log
     const response = await authClient.post('/users/login', { email, password });
     
     if (response.data && response.data.token) {
       setAuthToken(response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));
+      console.log('Login successful, token set');
     }
     
     return response.data;
   } catch (error) {
+    console.error('Login API error:', error.response?.data || error.message);
     throw new Error(
       error.response?.data?.message || 'Failed to login. Please check your credentials.'
     );
@@ -64,39 +69,6 @@ export const register = async (name, email, password) => {
   } catch (error) {
     throw new Error(
       error.response?.data?.message || 'Failed to register. Please try again.'
-    );
-  }
-};
-
-/**
- * Authenticate a user with Google
- * @param {string} credential - Google OAuth credential
- * @param {Object} userData - Optional user data from Google
- * @returns {Object} user data with token
- */
-export const googleAuth = async (credential, userData = null) => {
-  try {
-    console.log("Sending Google credential to backend");
-    
-    // Create the request payload
-    const payload = { credential };
-    if (userData) {
-      // If we have additional user data (from OAuth2 flow)
-      payload.userData = userData;
-    }
-    
-    const response = await authClient.post('/users/google', payload);
-    
-    if (response.data && response.data.token) {
-      // Set the token in auth header for future requests
-      setAuthToken(response.data.token);
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error("API Error during Google auth:", error);
-    throw new Error(
-      error.response?.data?.message || 'Failed to authenticate with Google. Please try again.'
     );
   }
 };
@@ -129,7 +101,15 @@ export const getUserProfile = async () => {
  */
 export const updateUserProfile = async (userData) => {
   try {
+    // Ensure token is set before making request
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+    }
+    
+    console.log('Updating profile with data:', userData); // Debug log
     const response = await authClient.put('/users/profile', userData);
+    console.log('Profile update response:', response.data); // Debug log
     
     if (response.data && response.data.token) {
       setAuthToken(response.data.token);
@@ -142,6 +122,7 @@ export const updateUserProfile = async (userData) => {
     
     return response.data;
   } catch (error) {
+    console.error('Update profile API error:', error.response?.data || error.message);
     throw new Error(
       error.response?.data?.message || 'Failed to update profile.'
     );

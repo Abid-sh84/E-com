@@ -97,10 +97,21 @@ export const removeFromWishlist = async (productId) => {
  */
 export const updateProfile = async (userData) => {
   try {
+    // Log the update attempt
+    console.log('Attempting to update profile with:', userData);
+    
+    // Ensure token is attached
+    const token = localStorage.getItem('token');
+    if (token) {
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await apiClient.put('/users/profile', userData);
+    console.log('Profile update API response:', response.data);
+    
     return response.data;
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('Error updating profile:', error.response?.data || error.message);
     throw new Error(error.response?.data?.message || 'Failed to update profile');
   }
 };

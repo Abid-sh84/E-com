@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { login as loginApi, register as registerApi, getUserProfile, googleAuth } from '../api/auth'
+import { login as loginApi, register as registerApi, getUserProfile, updateUserProfile as updateProfileApi } from '../api/auth'
+import axios from 'axios'
 
 // Create context
 const AuthContext = createContext({
@@ -12,7 +13,9 @@ const AuthContext = createContext({
   login: () => Promise.resolve(),
   signup: () => Promise.resolve(),
   logout: () => {},
-  googleLogin: () => Promise.resolve(),
+  updateUserAvatar: () => Promise.resolve(),
+  updateUserProfile: () => Promise.resolve(),
+  updateUserPassword: () => Promise.resolve(),
 });
 
 // Define the provider component as a named function for consistent exports
@@ -70,44 +73,88 @@ export function AuthProvider({ children }) {
     navigate('/login')
   }
 
-  const updateUserAvatar = (avatarUrl) => {
+  const updateUserAvatar = async (avatarUrl) => {
     if (currentUser) {
-      // Update user in state
-      const updatedUser = {
-        ...currentUser,
-        avatar: avatarUrl
-      };
-      
-      setCurrentUser(updatedUser);
-      
-      // Update user in localStorage
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      
-      // In a real app, you would also make an API call here
-      // to update the user's avatar on the server
-      // updateProfileApi({ avatar: avatarUrl });
+      try {
+        console.log('Updating avatar to:', avatarUrl);
+        
+        // Make API call to update avatar
+        const updatedData = await updateProfileApi({ avatar: avatarUrl });
+        
+        // Update user in state with response from backend
+        const updatedUser = {
+          ...currentUser,
+          avatar: avatarUrl
+        };
+        
+        setCurrentUser(updatedUser);
+        
+        // Update user in localStorage
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        return true;
+      } catch (error) {
+        console.error("Error updating avatar:", error);
+        throw error;
+      }
     }
   };
 
-  const googleLogin = async (credential, userData = null) => {
+  const updateUserProfile = async (name, email) => {
     try {
-      console.log("Processing Google login with credential");
-      // If we have userData from OAuth2 flow, pass it to the API
-      const response = await googleAuth(credential, userData);
-      const user = response.data || response;
+      console.log('Updating profile with name and email:', { name, email });
       
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      
-      // Store user data and token in localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-      if (user.token) {
-        localStorage.setItem("token", user.token);
+      // Ensure we have the latest token
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       }
       
-      return user;
+      // Make API call to update profile
+      const updatedData = await updateProfileApi({ name, email });
+      
+      if (updatedData) {
+        // Update current user state with response from backend
+        setCurrentUser(prev => ({
+          ...prev,
+          name: updatedData.name || prev.name,
+          email: updatedData.email || prev.email
+        }));
+        
+        // Save to localStorage for persistence
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        localStorage.setItem('user', JSON.stringify({
+          ...userData,
+          name: updatedData.name || userData.name,
+          email: updatedData.email || userData.email
+        }));
+      }
+      
+      return updatedData;
     } catch (error) {
-      console.error("Google auth failed in context:", error);
+      console.error("Error updating user profile:", error);
+      throw error;
+    }
+  };
+
+  const updateUserPassword = async (newPassword) => {
+    try {
+      console.log('Updating password');
+      
+      // Ensure we have the latest token
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
+      
+      // Make API call to update password
+      const updatedData = await updateProfileApi({ password: newPassword });
+      
+      console.log("Password updated successfully");
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating password:", error);
       throw error;
     }
   };
@@ -120,7 +167,8 @@ export function AuthProvider({ children }) {
     signup,
     logout,
     updateUserAvatar,
-    googleLogin
+    updateUserProfile,
+    updateUserPassword,
   }
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>

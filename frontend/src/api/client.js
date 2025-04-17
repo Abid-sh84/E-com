@@ -1,41 +1,46 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// Base URL for API requests
+const BASE_URL = 'http://localhost:5000/api';
 
-// Create an axios instance
+// Create axios instance
 const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor for adding the auth token
+// Request interceptor to add the auth token
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Token attached to request:', config.url);
     }
     return config;
   },
   (error) => {
+    console.error('API Client request error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor for handling common errors
+// Response interceptor for better error handling
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    // Handle 401 Unauthorized errors (token expired)
-    if (error.response && error.response.status === 401) {
+    console.error('API Client response error:', error.response?.data || error.message);
+    // You could handle token expiration here
+    if (error.response?.status === 401) {
+      // Token expired, redirect to login
+      console.log('Authentication failed - redirecting to login');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // Optionally redirect to login page
-      // window.location.href = '/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

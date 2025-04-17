@@ -83,9 +83,9 @@ const Navbar = () => {
             <Link to="/" className="flex-shrink-0 flex items-center group">
               <div className="relative">
                 <div className="absolute inset-0 bg-yellow-400 rounded-full blur-sm opacity-30 group-hover:opacity-60 transition-opacity"></div>
-                <img className="h-10 w-auto relative z-10" src="/images/logo.png" alt="Starry Comics" />
+                <img className="h-10 w-auto relative z-10" src="/images/logo.png" alt="Starforge Tees" />
               </div>
-              <span className="ml-2 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-300 group-hover:from-yellow-200 group-hover:via-yellow-100 group-hover:to-yellow-200 transition-all duration-300">Starry Comics</span>
+              <span className="ml-2 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-300 group-hover:from-yellow-200 group-hover:via-yellow-100 group-hover:to-yellow-200 transition-all duration-300">Starforge Tees</span>
             </Link>
           </div>
 

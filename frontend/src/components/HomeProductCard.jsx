@@ -1,38 +1,36 @@
-"use client"
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../contexts/CartContext";
+import { useWishlist } from "../contexts/WishlistContext";
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { useCart } from "../contexts/CartContext"
-import { useWishlist } from "../contexts/WishlistContext"
-
-const ProductCard = ({ product }) => {
-  const { addToCart } = useCart()
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
-  const [isHovered, setIsHovered] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(isInWishlist(product.id))
+const HomeProductCard = ({ product }) => {
+  const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(isInWishlist(product.id));
 
   const handleWishlistToggle = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (isWishlisted) {
-      removeFromWishlist(product.id)
-      setIsWishlisted(false)
+      removeFromWishlist(product.id);
+      setIsWishlisted(false);
     } else {
-      addToWishlist(product)
-      setIsWishlisted(true)
+      addToWishlist(product);
+      setIsWishlisted(true);
     }
-  }
+  };
 
   const handleAddToCart = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     addToCart({
       ...product,
       selectedSize: product.sizes?.[0] || "M",
       quantity: 1,
-    })
-  }
+    });
+  };
 
   // Calculate discounted price
   const discountedPrice = product.discount > 0 
@@ -69,11 +67,6 @@ const ProductCard = ({ product }) => {
               {product.discount > 0 && (
                 <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform transition-transform group-hover:scale-110 group-hover:-rotate-3 flex items-center">
                   <span className="mr-1">⚡</span> {product.discount}% OFF
-                </div>
-              )}
-              {product.countInStock === 0 && (
-                <div className="bg-black text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                  OUT OF STOCK
                 </div>
               )}
             </div>
@@ -182,10 +175,8 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
       </div>
-      
-      {/* Subtle gradient overlay to enhance readability - removed as it's handled differently in the new style */}
     </div>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default HomeProductCard;

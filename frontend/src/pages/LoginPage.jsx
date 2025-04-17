@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { googleAuth } from "../api/auth"
-
-// Google OAuth client ID from Vite environment variables
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+import CanvasCursor from "../components/CanvasCursor"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
@@ -15,7 +12,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showStars, setShowStars] = useState(true)
 
-  const { login, googleLogin } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -74,29 +71,11 @@ const LoginPage = () => {
     }
   };
 
-  // Load Google API script and create stars
   useEffect(() => {
-    // Check if Google API is already loaded
-    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
-      return;
-    }
-
-    // Load the Google API script
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => initializeGoogleSignIn();
-    document.body.appendChild(script);
-    
     createStars();
     window.addEventListener('resize', createStars);
 
     return () => {
-      const scriptElement = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (scriptElement) {
-        document.body.removeChild(scriptElement);
-      }
       window.removeEventListener('resize', createStars);
     };
   }, [showStars]);
@@ -107,38 +86,6 @@ const LoginPage = () => {
     // and we're on the login page
     createStars();
   }, [location.pathname]);
-
-  const initializeGoogleSignIn = () => {
-    if (window.google && GOOGLE_CLIENT_ID) {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleOneTapResponse
-      });
-    }
-  };
-
-  const handleGoogleOneTapResponse = async (response) => {
-    try {
-      const { credential } = response;
-      await googleLogin(credential);
-      navigate("/");
-    } catch (err) {
-      console.error("Google auth error:", err);
-      setError("Failed to sign in with Google. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleButtonClick = () => {
-    setIsLoading(true);
-    if (window.google && GOOGLE_CLIENT_ID) {
-      window.google.accounts.id.prompt();
-    } else {
-      setError("Google Sign-In is not available right now.");
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -162,6 +109,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Canvas cursor effect */}
+      <CanvasCursor />
+      
       {/* Stars container */}
       <div id="login-stars-container" className="fixed inset-0 pointer-events-none overflow-hidden"></div>
       
@@ -312,29 +262,6 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-indigo-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 text-indigo-300">Or continue with</span>
-              </div>
-            </div>
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={handleGoogleButtonClick}
-                disabled={isLoading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-indigo-600 rounded-lg shadow-sm bg-indigo-800/70 hover:bg-indigo-700/70 backdrop-blur-sm text-white font-medium transition-all duration-300"
-              >
-                <svg className="w-5 h-5 mr-2 text-red-400" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
-                </svg>
-                Sign in with Google
-              </button>
-            </div>
-          </div>
           {/* Comic style decorative elements */}
           <div className="absolute -top-4 -left-4 h-8 w-8 bg-yellow-400 rounded-full opacity-70 blur-md"></div>
           <div className="absolute -bottom-4 -right-4 h-8 w-8 bg-purple-500 rounded-full opacity-70 blur-md"></div>
