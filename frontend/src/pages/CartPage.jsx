@@ -30,6 +30,7 @@ const CartPage = () => {
       setDiscount(10) // 10% discount
     }
   }
+  //hey these are the changes
 
   const calculateTotal = () => {
     const subtotal = cartTotal
