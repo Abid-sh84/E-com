@@ -28,7 +28,7 @@ const Footer = () => {
                 <div className="absolute inset-0 bg-yellow-400 rounded-full blur-sm opacity-30 group-hover:opacity-60 transition-opacity"></div>
                 <img className="h-10 w-auto relative z-10" src="/images/logo.png" alt="Starry Comics" />
               </div>
-              <span className="ml-3 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-purple-400 to-blue-400">Starry Comics</span>
+              <span className="ml-3 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-purple-400 to-blue-400">Starforge Tees</span>
             </Link>
             <p className="text-indigo-300 mb-5 max-w-xs">
               Your destination for premium superhero merchandise from all universes. Officially licensed products with worldwide shipping.
