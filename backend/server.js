@@ -11,6 +11,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import subscriberRoutes from './routes/subscriberRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -32,6 +33,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/subscribers', subscriberRoutes);
 
 // Base route
 app.get('/', (req, res) => {

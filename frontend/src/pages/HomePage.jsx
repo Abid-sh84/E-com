@@ -4,9 +4,17 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import ProductCard from "../components/ProductCard"
 import { featuredProducts, categories } from "../data/mockData"
+import apiClient from "../api/client"
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true)
+  const [email, setEmail] = useState("")
+  const [subscribeStatus, setSubscribeStatus] = useState({
+    show: false,
+    message: "",
+    isError: false,
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     // Simulate loading data
@@ -75,6 +83,51 @@ const HomePage = () => {
 
     return () => clearTimeout(timer)
   }, [])
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault()
+    
+    if (!email.trim()) {
+      setSubscribeStatus({
+        show: true,
+        message: "Please enter your email address",
+        isError: true,
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      const { data } = await apiClient.post('/api/subscribers', { email })
+      
+      setSubscribeStatus({
+        show: true,
+        message: data.message || 'Thank you for subscribing!',
+        isError: false,
+      })
+      
+      setEmail("")
+      
+      // Hide the success message after 5 seconds
+      setTimeout(() => {
+        setSubscribeStatus({
+          show: false,
+          message: "",
+          isError: false,
+        })
+      }, 5000)
+    } catch (error) {
+      console.error('Subscription error:', error);
+      setSubscribeStatus({
+        show: true,
+        message: error.response?.data?.message || "Something went wrong. Please try again.",
+        isError: true,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-purple-900 to-indigo-950 relative">
@@ -234,22 +287,60 @@ const HomePage = () => {
                 <p className="text-indigo-200 text-lg mb-8">
                   Subscribe to receive exclusive offers, cosmic news updates, and a special 15% discount on your first order!
                 </p>
-                <form className="flex flex-col sm:flex-row gap-4">
+                <form className="flex flex-col sm:flex-row gap-4" onSubmit={handleSubscribe}>
                   <div className="relative flex-grow">
                     <input 
                       type="email" 
                       placeholder="Your email address" 
                       className="w-full bg-indigo-800/50 border border-indigo-600 rounded-lg focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 text-white py-3 px-4 placeholder-indigo-400"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)} 
                       required 
                     />
                   </div>
-                  <button type="submit" className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold rounded-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center justify-center shadow-md shadow-yellow-900/30">
-                    <span>SUBSCRIBE</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
+                  <button 
+                    type="submit" 
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold rounded-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center justify-center shadow-md shadow-yellow-900/30"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>SUBSCRIBING...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>SUBSCRIBE</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                      </>
+                    )}
                   </button>
                 </form>
+                {subscribeStatus.show && (
+                  <div className={`mt-4 p-3 rounded-lg ${
+                    subscribeStatus.isError 
+                      ? "bg-red-900/50 text-red-200 border border-red-700/50" 
+                      : "bg-green-900/50 text-green-200 border border-green-700/50"
+                  }`}>
+                    <div className="flex items-start">
+                      {subscribeStatus.isError ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400 mr-2 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                      <p>{subscribeStatus.message}</p>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="hidden md:block">
                 <img src="/images/hero-emblem.svg" alt="Hero emblem" className="w-48 h-48 opacity-80" />
