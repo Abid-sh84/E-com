@@ -3,7 +3,6 @@
 An immersive e-commerce web application for purchasing superhero-themed T-shirts, built using a modern tech stack and inspired by comic book aesthetics and the beauty of *Starry Night*.
 
 ---
-
 ## ✨ Features
 
 - Stunning superhero & comic-themed UI  
