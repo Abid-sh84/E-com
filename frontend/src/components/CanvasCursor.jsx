@@ -21,7 +21,7 @@ const CanvasCursor = () => {
       cursorRef.current.x = e.clientX;
       cursorRef.current.y = e.clientY;
       
-      // Add a new point when the mouse moves
+      // Add a new point when the mouse can moves 
       pointsRef.current.push({
         x: e.clientX,
         y: e.clientY,
