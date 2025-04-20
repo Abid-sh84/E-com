@@ -62,7 +62,16 @@ const WishlistPage = () => {
           </h1>
           <p className="text-center text-purple-300 mb-8">Assemble your favorites</p>
 
-          <div className="bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 backdrop-blur-md rounded-lg p-8 text-center border border-indigo-700 shadow-lg shadow-purple-900/30">
+          <div className="bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 backdrop-blur-md rounded-lg p-8 text-center border-2 border-indigo-600 shadow-lg shadow-purple-900/30 relative overflow-hidden">
+            {/* Animated border glow */}
+            <div className="absolute inset-0 border-4 border-transparent rounded-lg" style={{
+              background: 'linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.6), rgba(96, 165, 250, 0.6), rgba(250, 204, 21, 0.6), transparent) border-box',
+              WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+              WebkitMaskComposite: 'xor',
+              maskComposite: 'exclude',
+              animation: 'borderRotate 4s linear infinite',
+            }}></div>
+            
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="h-24 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-purple-600 opacity-20 blur-xl"></div>
@@ -127,11 +136,25 @@ const WishlistPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {wishlistItems.map((item) => (
             <div key={item.id} className="group relative">
-              {/* Card glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 via-purple-600/30 to-yellow-600/30 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              {/* Enhanced card glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-yellow-600/40 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               
-              <div className="relative bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 backdrop-blur-md rounded-lg overflow-hidden border border-indigo-700/50 shadow-lg shadow-purple-900/30 transform group-hover:scale-102 transition-all duration-300">
-                <div className="relative">
+              {/* Enhanced card with layered borders */}
+              <div className="relative bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 backdrop-blur-md rounded-lg overflow-hidden shadow-lg shadow-purple-900/30 transform group-hover:scale-102 transition-all duration-300">
+                {/* Animated border effect */}
+                <div className="absolute inset-0 rounded-lg border-2 border-transparent" style={{
+                  background: 'linear-gradient(90deg, #6366f1, #a855f7, #3b82f6, #f59e0b) border-box',
+                  WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                  animation: 'borderGlow 3s ease-in-out infinite',
+                  zIndex: 2
+                }}></div>
+                
+                {/* Inner border */}
+                <div className="absolute inset-[3px] rounded-lg border border-indigo-700/70 z-[1]"></div>
+                
+                <div className="relative z-10">
                   <Link to={`/products/${item.id}`}>
                     <div className="relative overflow-hidden">
                       <img
@@ -140,6 +163,12 @@ const WishlistPage = () => {
                         className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-indigo-950 to-transparent opacity-50"></div>
+                      
+                      {/* Add sparkle effect to image corners */}
+                      <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-yellow-400/70"></div>
+                      <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-blue-400/70"></div>
+                      <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-purple-400/70"></div>
+                      <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-yellow-400/70"></div>
                     </div>
                   </Link>
                   <button
@@ -158,7 +187,7 @@ const WishlistPage = () => {
                   </button>
                 </div>
 
-                <div className="p-5">
+                <div className="p-5 relative z-10">
                   <Link to={`/products/${item.id}`} className="block mb-2">
                     <h3 className="font-bold text-xl text-white group-hover:text-yellow-300 transition-colors">{item.name}</h3>
                   </Link>
@@ -186,7 +215,7 @@ const WishlistPage = () => {
                   
                   <button
                     onClick={() => handleAddToCart(item)}
-                    className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 border border-indigo-500/30"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -200,7 +229,7 @@ const WishlistPage = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <Link to="/products" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-800/70 to-purple-800/70 backdrop-blur-sm hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-full transform hover:scale-105 transition-all duration-300 border border-indigo-700/50 shadow-md shadow-purple-900/30">
+          <Link to="/products" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-800/70 to-purple-800/70 backdrop-blur-sm hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-full transform hover:scale-105 transition-all duration-300 border-2 border-indigo-600/50 shadow-md shadow-purple-900/30">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 mr-2"
@@ -215,12 +244,23 @@ const WishlistPage = () => {
         </div>
       </div>
 
-      {/* Add CSS for stars animation */}
+      {/* Add CSS for animations */}
       <style jsx global>{`
         @keyframes twinkle {
           0% { opacity: 0.3; }
           50% { opacity: 1; }
           100% { opacity: 0.3; }
+        }
+        
+        @keyframes borderGlow {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        
+        @keyframes borderRotate {
+          0% { background-position: 0% center; }
+          100% { background-position: 200% center; }
         }
         
         .star {
