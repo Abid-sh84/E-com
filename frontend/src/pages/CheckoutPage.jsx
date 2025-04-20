@@ -27,7 +27,7 @@ const CheckoutPage = () => {
     cardExpiry: "",
     cardCvc: "",
   })
-
+//something chan
   const [errors, setErrors] = useState({})
   const [isProcessing, setIsProcessing] = useState(false)
 
