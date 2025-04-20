@@ -13,7 +13,7 @@ import CheckoutPage from "./pages/CheckoutPage"
 import { CartProvider } from "./contexts/CartContext"
 import { WishlistProvider } from "./contexts/WishlistContext"
 import { AuthProvider } from "./contexts/AuthContext"
-
+// adding all routes
 function App() {
   return (
     <AuthProvider>
