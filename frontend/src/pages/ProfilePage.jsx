@@ -5,10 +5,10 @@ import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 
 const avatars = [
-  { id: 1, name: "Superman", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/superman_avatar_geflb0.png" },
-  { id: 2, name: "Batman", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/batman_avatar_crky4z.png" },
+  { id: 1, name: "Superman", image: "https://tse1.mm.bing.net/th/id/OIP.PKMxKaVtp0t5pCSpA-eIcQHaLH?rs=1&pid=ImgDetMain" },
+  { id: 2, name: "Batman", image: "https://comicvine.gamespot.com/a/uploads/original/11125/111253442/4897645-batman.jpg " },
   { id: 3, name: "Spider-Man", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/spiderman_avatar_bfyiei.png" },
-  { id: 4, name: "Wonder Woman", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/wonder_woman_avatar_cvdaqz.png" },
+  { id: 4, name: "Wonder Woman", image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7a3e204f-65f8-4a69-a257-052f82738fd8/dfcsoxq-b87b8d58-4209-45f4-9516-4d2c8cffd5f3.png/v1/fill/w_512,h_768,q_80,strp/wonder_woman_closeup_by_digitaltoadphotos_dfcsoxq-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzY4IiwicGF0aCI6IlwvZlwvN2EzZTIwNGYtNjVmOC00YTY5LWEyNTctMDUyZjgyNzM4ZmQ4XC9kZmNzb3hxLWI4N2I4ZDU4LTQyMDktNDVmNC05NTE2LTRkMmM4Y2ZmZDVmMy5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.P_hg4D87brx4wR7pRTixxvObudv_uUXJf8kPLIqk8Lo" },
   { id: 5, name: "Iron Man", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447072/ironman_avatar_q5damd.png" },
   { id: 6, name: "Captain America", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/captain_america_avatar_yuwoay.png" },
   { id: 7, name: "Black Widow", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/black_widow_avatar_vftmap.png" },
