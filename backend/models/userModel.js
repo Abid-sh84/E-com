@@ -15,7 +15,10 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // Modified: Not required for Google OAuth users
+      required: function() {
+        return this.authProvider === 'local';
+      },
     },
     avatar: {
       type: String,
@@ -25,6 +28,16 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       required: true,
       default: false,
+    },
+    // Added: Authentication provider field
+    authProvider: {
+      type: String,
+      default: 'local',
+      enum: ['local', 'google', 'facebook']
+    },
+    // Added: Google ID for OAuth users
+    googleId: {
+      type: String,
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -65,8 +78,12 @@ userSchema.pre('save', async function (next) {
     next();
   }
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  // Only hash the password if it exists (for non-OAuth users)
+  if (this.password) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
 });
 
 const User = mongoose.model('User', userSchema);

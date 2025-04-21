@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import CanvasCursor from "../components/CanvasCursor"
+import GoogleButton from '../components/GoogleButton';
 
 const SignupPage = () => {
   const [name, setName] = useState("")
@@ -14,7 +15,7 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showStars, setShowStars] = useState(true)
 
-  const { signup } = useAuth()
+  const { signup, initiateGoogleLogin } = useAuth()
   const navigate = useNavigate()
   
   // Create stars effect
@@ -269,6 +270,23 @@ const SignupPage = () => {
                   </>
                 )}
               </button>
+            </div>
+
+            <div className="mt-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-indigo-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 text-indigo-300">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <GoogleButton text="Sign up with Google" onClick={initiateGoogleLogin} />
+              </div>
             </div>
           </form>
           

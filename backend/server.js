@@ -16,6 +16,38 @@ import subscriberRoutes from './routes/subscriberRoutes.js';
 // Load env vars
 dotenv.config();
 
+// Check if essential environment variables exist, but don't expose them in code
+if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID.trim() === '') {
+  console.warn('Warning: GOOGLE_CLIENT_ID environment variable is not set. OAuth functionality may not work properly.');
+  // Don't set default values in code - use .env file instead
+}
+
+if (!process.env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET.trim() === '') {
+  console.warn('Warning: GOOGLE_CLIENT_SECRET environment variable is not set. OAuth functionality may not work properly.');
+}
+
+if (!process.env.GOOGLE_REDIRECT_URI || process.env.GOOGLE_REDIRECT_URI.trim() === '') {
+  console.warn('Warning: GOOGLE_REDIRECT_URI environment variable is not set. Using default value.');
+  process.env.GOOGLE_REDIRECT_URI = 'http://localhost:5000/api/users/google/callback';
+}
+
+if (!process.env.FRONTEND_URL) {
+  console.warn('Warning: FRONTEND_URL environment variable is not set. Using default value.');
+  process.env.FRONTEND_URL = 'http://localhost:5173';
+}
+
+// Log configuration but hide sensitive values
+console.log('==== OAuth Configuration ====');
+console.log('Google Client ID:', process.env.GOOGLE_CLIENT_ID ? '[SET]' : '[MISSING]');
+console.log('Google Client Secret:', process.env.GOOGLE_CLIENT_SECRET ? '[SET]' : '[MISSING]');
+console.log('Google Redirect URI:', process.env.GOOGLE_REDIRECT_URI);
+console.log('Frontend URL:', process.env.FRONTEND_URL);
+console.log('===========================');
+
+// Import and run Google OAuth config verification
+import verifyGoogleConfig from './utils/verifyGoogleConfig.js';
+verifyGoogleConfig();
+
 // Connect to database
 connectDB();
 

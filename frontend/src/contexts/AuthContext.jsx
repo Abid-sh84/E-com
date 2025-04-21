@@ -2,7 +2,14 @@
 
 import { createContext, useContext, useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { login as loginApi, register as registerApi, getUserProfile, updateUserProfile as updateProfileApi } from '../api/auth'
+import { 
+  login as loginApi, 
+  register as registerApi, 
+  getUserProfile, 
+  updateUserProfile as updateProfileApi, 
+  initiateGoogleAuth, 
+  loginWithGoogle as loginWithGoogleApi
+} from '../api/auth'
 import axios from 'axios'
 
 // Create context
@@ -16,6 +23,8 @@ const AuthContext = createContext({
   updateUserAvatar: () => Promise.resolve(),
   updateUserProfile: () => Promise.resolve(),
   updateUserPassword: () => Promise.resolve(),
+  initiateGoogleLogin: () => {},
+  loginWithGoogle: () => Promise.resolve(),
 });
 
 // Define the provider component as a named function for consistent exports
@@ -159,6 +168,33 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const initiateGoogleLogin = () => {
+    // Store the current URL to redirect back after login
+    const currentPath = window.location.pathname;
+    if (currentPath !== "/login" && currentPath !== "/signup") {
+      localStorage.setItem("redirectAfterLogin", currentPath);
+    }
+    
+    // Redirect to the backend's Google auth endpoint
+    window.location.href = "http://localhost:5000/api/users/google";
+  };
+
+  const loginWithGoogle = async (token) => {
+    try {
+      // Use the imported loginWithGoogleApi function instead of direct fetch
+      const userData = await loginWithGoogleApi(token);
+      
+      // Set authentication state
+      setIsAuthenticated(true);
+      setCurrentUser(userData);
+      
+      return userData;
+    } catch (error) {
+      console.error("Error in Google login process:", error);
+      throw error;
+    }
+  };
+
   const value = {
     currentUser,
     isAuthenticated,
@@ -169,6 +205,8 @@ export function AuthProvider({ children }) {
     updateUserAvatar,
     updateUserProfile,
     updateUserPassword,
+    initiateGoogleLogin,
+    loginWithGoogle,
   }
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>

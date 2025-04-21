@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import CanvasCursor from "../components/CanvasCursor"
 import axios from 'axios'
+import GoogleButton from '../components/GoogleButton';
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
@@ -18,7 +19,7 @@ const LoginPage = () => {
   const [forgotEmailLoading, setForgotEmailLoading] = useState(false)
   const [forgotEmailError, setForgotEmailError] = useState("")
 
-  const { login } = useAuth()
+  const { login, initiateGoogleLogin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -309,6 +310,22 @@ const LoginPage = () => {
                   </>
                 )}
               </button>
+            </div>
+            <div className="mt-4">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-indigo-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-indigo-900/80 text-indigo-300">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <GoogleButton onClick={initiateGoogleLogin} />
+              </div>
             </div>
           </form>
           {/* Comic style decorative elements */}
