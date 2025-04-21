@@ -11,6 +11,12 @@ import {
   removeFromWishlist,
   getWishlist,
   getUsers,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
+  googleAuth,
+  googleCallback,
+  getCurrentUser  // Add this import
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -39,5 +45,17 @@ router.route('/wishlist')
 
 router.route('/wishlist/:id')
   .delete(protect, removeFromWishlist);
+
+// Password reset routes
+router.post('/forgot-password', forgotPassword);
+router.get('/reset-password/:token/verify', verifyResetToken);
+router.post('/reset-password/:token', resetPassword);
+
+// Add route for current user
+router.get('/me', protect, getCurrentUser);
+
+// Google authentication routes
+router.get('/google', googleAuth);
+router.get('/google/callback', googleCallback);
 
 export default router;

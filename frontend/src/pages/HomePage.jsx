@@ -343,7 +343,7 @@ const HomePage = () => {
                 )}
               </div>
               <div className="hidden md:block">
-                <img src="/images/hero-emblem.svg" alt="Hero emblem" className="w-48 h-48 opacity-80" />
+                <img src="/images/hero1.png" alt="Hero emblem" className="w-auto h-58 opacity-80" />
               </div>
             </div>
           </div>

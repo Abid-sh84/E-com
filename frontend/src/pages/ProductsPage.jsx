@@ -10,7 +10,7 @@ const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [filteredProducts, setFilteredProducts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
   const [activeFilters, setActiveFilters] = useState({
     category: searchParams.get("category") || "",
     universe: searchParams.get("universe") || "",
@@ -19,7 +19,7 @@ const ProductsPage = () => {
     sortBy: searchParams.get("sort") || "newest",
   })
   const [pagination, setPagination] = useState({
-    page: 1,
+    page: parseInt(searchParams.get("page")) || 1,
     pages: 1,
     count: 0
   })
@@ -28,28 +28,66 @@ const ProductsPage = () => {
 
   // Add cosmic effect state
   const [stars, setStars] = useState([])
+  
+  // Add shooting stars effect state
+  const [shootingStars, setShootingStars] = useState([])
 
   // Generate random stars for background effect
   useEffect(() => {
     const generateStars = () => {
-      const starCount = 50;
+      const starCount = 100;
       const newStars = [];
       
       for (let i = 0; i < starCount; i++) {
         newStars.push({
           id: i,
-          top: Math.random() * 100, // % position
-          left: Math.random() * 100, // % position
-          size: Math.random() * 2 + 1, // px size between 1-3px
-          animationDuration: Math.random() * 3 + 2, // seconds between 2-5s
-          animationDelay: Math.random() * 2, // seconds between 0-2s
+          top: Math.random() * 100,
+          left: Math.random() * 100,
+          size: Math.random() * 2 + 1,
+          animationDuration: Math.random() * 3 + 2,
+          animationDelay: Math.random() * 2,
+          opacity: Math.random() * 0.7 + 0.3,
         });
       }
       
       setStars(newStars);
+      
+      // Generate 3-5 shooting stars
+      const shootingStarCount = Math.floor(Math.random() * 3) + 3;
+      const newShootingStars = [];
+      
+      for (let i = 0; i < shootingStarCount; i++) {
+        newShootingStars.push({
+          id: i,
+          top: Math.random() * 70,
+          left: Math.random() * 30,
+          width: Math.random() * 100 + 100,
+          angle: Math.random() * 20 - 30,
+          delay: Math.random() * 15,
+          duration: Math.random() * 4 + 3,
+        });
+      }
+      
+      setShootingStars(newShootingStars);
     };
     
     generateStars();
+    
+    // Regenerate stars periodically for dynamic effect
+    const interval = setInterval(() => {
+      const randomStarIndex = Math.floor(Math.random() * stars.length);
+      if (stars[randomStarIndex]) {
+        const updatedStars = [...stars];
+        updatedStars[randomStarIndex] = {
+          ...updatedStars[randomStarIndex],
+          opacity: Math.random() * 0.7 + 0.3,
+          animationDuration: Math.random() * 3 + 2,
+        };
+        setStars(updatedStars);
+      }
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const tShirtTypes = [
@@ -92,79 +130,229 @@ const ProductsPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault()
-    if (searchTerm) {
-      const filtered = mockProducts.filter(product => 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      setFilteredProducts(filtered)
-    } else {
-      fetchProducts()
-    }
+    updateFiltersAndSearch({ search: searchTerm })
   }
 
   const clearSearch = () => {
     setSearchTerm("")
-    fetchProducts()
+    updateFiltersAndSearch({ search: "" })
+  }
+  
+  const updateFiltersAndSearch = (newParams = {}) => {
+    // Reset to page 1 when filters or search change
+    setPagination(prev => ({ ...prev, page: 1 }))
+    
+    const updatedParams = { ...newParams }
+    
+    // Keep existing filters in the URL if they're not being updated
+    if (!("category" in updatedParams) && activeFilters.category) {
+      updatedParams.category = activeFilters.category
+    }
+    if (!("universe" in updatedParams) && activeFilters.universe) {
+      updatedParams.universe = activeFilters.universe
+    }
+    if (!("type" in updatedParams) && activeFilters.type) {
+      updatedParams.type = activeFilters.type
+    }
+    if (!("price" in updatedParams) && activeFilters.priceRange) {
+      updatedParams.price = activeFilters.priceRange
+    }
+    if (!("sort" in updatedParams) && activeFilters.sortBy) {
+      updatedParams.sort = activeFilters.sortBy
+    }
+    if (!("search" in updatedParams) && searchTerm) {
+      updatedParams.search = searchTerm
+    }
+    
+    // Update search params
+    setSearchParams(updatedParams)
+    
+    // Update active filters state
+    if ("category" in updatedParams) {
+      setActiveFilters(prev => ({ ...prev, category: updatedParams.category || "" }))
+    }
+    if ("universe" in updatedParams) {
+      setActiveFilters(prev => ({ ...prev, universe: updatedParams.universe || "" }))
+    }
+    if ("type" in updatedParams) {
+      setActiveFilters(prev => ({ ...prev, type: updatedParams.type || "" }))
+    }
+    if ("price" in updatedParams) {
+      setActiveFilters(prev => ({ ...prev, priceRange: updatedParams.price || "" }))
+    }
+    if ("sort" in updatedParams) {
+      setActiveFilters(prev => ({ ...prev, sortBy: updatedParams.sort || "newest" }))
+    }
+    
+    // Fetch products with updated filters
+    fetchProducts(updatedParams, 1)
   }
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
+  const fetchProducts = async (params = activeFilters, page = pagination.page) => {
+    setIsLoading(true)
+    
     try {
-      const params = {};
-      if (activeFilters.category) params.category = activeFilters.category;
-      if (activeFilters.universe) params.universe = activeFilters.universe;
-      if (activeFilters.type) params.type = activeFilters.type;
-      if (activeFilters.priceRange) params.price = activeFilters.priceRange;
-      if (activeFilters.sortBy) params.sort = activeFilters.sortBy;
-      
-      setSearchParams(params);
+      const apiParams = { ...params, page }
       
       try {
-        const result = await getProducts(activeFilters, pagination.page);
+        const result = await getProducts(apiParams, page)
         
         if (result && result.products && result.products.length > 0) {
-          setFilteredProducts(result.products);
+          setFilteredProducts(result.products)
           setPagination({
-            page: result.page || 1,
+            page: result.page || page,
             pages: result.pages || 1,
             count: result.count || result.products.length
-          });
+          })
         } else {
-          setFilteredProducts(mockProducts);
+          // If API fails, apply filters locally
+          let filtered = [...mockProducts]
+          
+          // Apply search filter
+          if (searchTerm) {
+            filtered = filtered.filter(product => 
+              product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+              (product.universe && product.universe.toLowerCase().includes(searchTerm.toLowerCase()))
+            )
+          }
+          
+          // Apply category filter
+          if (params.category) {
+            const category = categories.find(c => c.slug === params.category)
+            if (category) {
+              filtered = filtered.filter(p => p.categoryId === category.id)
+            }
+          }
+          
+          // Apply universe filter
+          if (params.universe) {
+            filtered = filtered.filter(p => p.universe && p.universe.toLowerCase() === params.universe)
+          }
+          
+          // Apply type filter
+          if (params.type) {
+            filtered = filtered.filter(p => p.type && p.type.toLowerCase() === params.type)
+          }
+          
+          // Apply price range filter
+          if (params.priceRange) {
+            const range = priceRanges.find(r => r.id === params.priceRange)
+            if (range) {
+              filtered = filtered.filter(p => {
+                const price = p.discount ? p.price * (1 - p.discount / 100) : p.price
+                return price >= range.range[0] && price <= range.range[1]
+              })
+            }
+          }
+          
+          // Apply sorting
+          switch (params.sortBy) {
+            case 'price-low':
+              filtered.sort((a, b) => {
+                const aPrice = a.discount ? a.price * (1 - a.discount / 100) : a.price
+                const bPrice = b.discount ? b.price * (1 - b.discount / 100) : b.price
+                return aPrice - bPrice
+              })
+              break
+            case 'price-high':
+              filtered.sort((a, b) => {
+                const aPrice = a.discount ? a.price * (1 - a.discount / 100) : a.price
+                const bPrice = b.discount ? b.price * (1 - b.discount / 100) : b.price
+                return bPrice - aPrice
+              })
+              break
+            case 'rating':
+              filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+              break
+            case 'popularity':
+              filtered.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0))
+              break
+            case 'newest':
+            default:
+              filtered.sort((a, b) => new Date(b.createdAt || Date.now()) - new Date(a.createdAt || Date.now()))
+          }
+          
+          // Simple pagination logic
+          const perPage = 9
+          const totalPages = Math.ceil(filtered.length / perPage)
+          const offset = (page - 1) * perPage
+          
+          setFilteredProducts(filtered.slice(offset, offset + perPage))
           setPagination({
-            page: 1,
-            pages: 1,
-            count: mockProducts.length
-          });
+            page: page,
+            pages: totalPages,
+            count: filtered.length
+          })
         }
       } catch (error) {
-        setFilteredProducts(mockProducts);
-        setPagination({
-          page: 1,
-          pages: 1,
-          count: mockProducts.length
-        });
+        console.error("Error fetching products:", error)
+        applyLocalFilters(params, page)
       }
     } catch (error) {
-      setFilteredProducts(mockProducts);
+      console.error("Error in filter processing:", error)
+      setFilteredProducts(mockProducts.slice(0, 9))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
+  
+  const applyLocalFilters = (params, page) => {
+    let filtered = [...mockProducts]
+    
+    // Apply the same filtering logic as in fetchProducts for local data
+    // ... (same filtering code)
+    
+    setFilteredProducts(filtered)
+  }
 
   useEffect(() => {
-    setFilteredProducts(mockProducts);
-    fetchProducts();
-  }, [activeFilters, pagination.page, setSearchParams]);
+    // Reset page when search or filters change
+    if (searchParams.toString() !== "") {
+      const page = parseInt(searchParams.get("page")) || 1
+      const search = searchParams.get("search") || ""
+      const category = searchParams.get("category") || ""
+      const universe = searchParams.get("universe") || ""
+      const type = searchParams.get("type") || ""
+      const price = searchParams.get("price") || ""
+      const sort = searchParams.get("sort") || "newest"
+      
+      setSearchTerm(search)
+      setActiveFilters({
+        category,
+        universe,
+        type,
+        priceRange: price,
+        sortBy: sort
+      })
+      
+      setPagination(prev => ({...prev, page}))
+      fetchProducts({
+        category,
+        universe,
+        type,
+        priceRange: price,
+        sortBy: sort,
+        search
+      }, page)
+    } else {
+      fetchProducts()
+    }
+  }, [searchParams]);
 
   const handleFilterChange = (filterType, value) => {
-    setActiveFilters((prev) => ({
-      ...prev,
-      [filterType]: prev[filterType] === value ? "" : value,
-    }))
+    // Toggle the filter value
+    const newValue = activeFilters[filterType] === value ? "" : value
+    
+    // Update the filters
+    updateFiltersAndSearch({
+      [filterType === 'priceRange' ? 'price' : filterType]: newValue,
+      page: 1 // Reset to page 1 when changing filters
+    })
   }
 
   const clearAllFilters = () => {
+    setSearchTerm("")
     setActiveFilters({
       category: "",
       universe: "",
@@ -172,6 +360,32 @@ const ProductsPage = () => {
       priceRange: "",
       sortBy: "newest",
     })
+    setSearchParams({})
+    fetchProducts({
+      category: "",
+      universe: "",
+      type: "",
+      priceRange: "",
+      sortBy: "newest",
+      search: ""
+    }, 1)
+  }
+  
+  const handleSortChange = (e) => {
+    const newSortBy = e.target.value
+    updateFiltersAndSearch({ sort: newSortBy })
+  }
+  
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > pagination.pages) return
+    
+    setPagination(prev => ({ ...prev, page: newPage }))
+    
+    const params = new URLSearchParams(searchParams)
+    params.set("page", newPage)
+    setSearchParams(params)
+    
+    fetchProducts(activeFilters, newPage)
   }
 
   return (
@@ -185,7 +399,7 @@ const ProductsPage = () => {
         <div className="absolute top-0 left-2/4 w-px h-screen bg-purple-400 opacity-20" style={{boxShadow: '0 0 20px 5px rgba(192, 132, 252, 0.5)'}}></div>
         <div className="absolute top-0 left-3/4 w-px h-screen bg-yellow-400 opacity-20" style={{boxShadow: '0 0 20px 5px rgba(250, 204, 21, 0.5)'}}></div>
         
-        {/* Random stars */}
+        {/* Random stars with dynamic opacity */}
         {stars.map(star => (
           <div 
             key={star.id}
@@ -195,9 +409,26 @@ const ProductsPage = () => {
               left: `${star.left}%`,
               width: `${star.size}px`,
               height: `${star.size}px`,
-              opacity: Math.random() * 0.7 + 0.3,
+              opacity: star.opacity,
               animation: `twinkle ${star.animationDuration}s ease-in-out infinite`,
               animationDelay: `${star.animationDelay}s`
+            }}
+          />
+        ))}
+
+        {/* Improved shooting stars */}
+        {shootingStars.map(star => (
+          <div 
+            key={`shooting-${star.id}`}
+            className="absolute h-[1px] bg-white z-0"
+            style={{
+              top: `${star.top}%`,
+              left: `${star.left}%`,
+              width: `${star.width}px`,
+              transform: `rotate(${star.angle}deg)`,
+              boxShadow: '0 0 10px 2px rgba(255, 255, 255, 0.8), 0 0 20px 6px rgba(255, 255, 255, 0.4)',
+              animation: `shootingstar ${star.duration}s linear infinite`,
+              animationDelay: `${star.delay}s`
             }}
           />
         ))}
@@ -214,38 +445,29 @@ const ProductsPage = () => {
         <div className="absolute h-4 w-4 bg-white rounded-full top-64 left-[25%] animate-pulse" 
              style={{boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.7)', animationDelay: '1.5s'}}></div>
         
-        {/* Nebula-like effects */}
-        <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] rounded-full bg-blue-500/5 blur-3xl"></div>
-        <div className="absolute top-[50%] right-[10%] w-[400px] h-[400px] rounded-full bg-purple-500/5 blur-3xl"></div>
-        <div className="absolute bottom-[10%] left-[30%] w-[500px] h-[500px] rounded-full bg-yellow-500/5 blur-3xl"></div>
-
-        {/* Shooting star animation */}
-        <div className="absolute top-[20%] left-0 w-[150px] h-[1px] bg-white transform -rotate-[15deg]"
-             style={{
-               boxShadow: '0 0 10px 2px rgba(255, 255, 255, 0.8)',
-               animation: 'shootingstar 5s linear infinite',
-               animationDelay: '3s'
-             }}></div>
-        <div className="absolute top-[60%] left-[20%] w-[100px] h-[1px] bg-white transform -rotate-[25deg]"
-             style={{
-               boxShadow: '0 0 10px 2px rgba(255, 255, 255, 0.8)',
-               animation: 'shootingstar 7s linear infinite',
-               animationDelay: '1s'
-             }}></div>
+        {/* Enhanced nebula-like effects */}
+        <div className="absolute top-[20%] left-[10%] w-[300px] h-[300px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{animationDuration: '15s'}}></div>
+        <div className="absolute top-[50%] right-[10%] w-[400px] h-[400px] rounded-full bg-purple-500/5 blur-3xl animate-pulse" style={{animationDuration: '20s'}}></div>
+        <div className="absolute bottom-[10%] left-[30%] w-[500px] h-[500px] rounded-full bg-yellow-500/5 blur-3xl animate-pulse" style={{animationDuration: '25s'}}></div>
       </div>
 
       {/* Add global animations for the cosmic effects */}
       <style jsx global>{`
         @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
+          0%, 100% { opacity: 0.2; }
           50% { opacity: 1; }
         }
         
         @keyframes shootingstar {
-          0% { transform: translateX(0) translateY(0) rotate(-15deg); opacity: 0; }
+          0% { transform: translateX(0) translateY(0) rotate(${-15}deg); opacity: 0; }
           10% { opacity: 1; }
-          70% { opacity: 1; }
-          100% { transform: translateX(1000px) translateY(300px) rotate(-15deg); opacity: 0; }
+          70% { opacity: 0.8; }
+          100% { transform: translateX(1000px) translateY(300px) rotate(${-15}deg); opacity: 0; }
+        }
+        
+        @keyframes cosmicPulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
         }
       `}</style>
 
@@ -261,18 +483,25 @@ const ProductsPage = () => {
                  }}></div>
             
             {/* Hero section glow effects */}
-            <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-[600px] h-[200px] rounded-full bg-yellow-400/20 blur-3xl"></div>
-            <div className="absolute -top-20 left-1/4 transform -translate-x-1/2 w-[300px] h-[200px] rounded-full bg-blue-400/20 blur-3xl"></div>
-            <div className="absolute -top-20 right-1/4 transform translate-x-1/2 w-[300px] h-[200px] rounded-full bg-purple-400/20 blur-3xl"></div>
+            <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-[600px] h-[200px] rounded-full bg-yellow-400/20 blur-3xl animate-pulse" style={{animationDuration: '10s'}}></div>
+            <div className="absolute -top-20 left-1/4 transform -translate-x-1/2 w-[300px] h-[200px] rounded-full bg-blue-400/20 blur-3xl animate-pulse" style={{animationDuration: '8s'}}></div>
+            <div className="absolute -top-20 right-1/4 transform translate-x-1/2 w-[300px] h-[200px] rounded-full bg-purple-400/20 blur-3xl animate-pulse" style={{animationDuration: '12s'}}></div>
           </div>
           
-          {/* Keep the rest of the hero content */}
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-white to-yellow-300 mb-4 text-center">Superhero Collection</h1>
-          <p className="text-indigo-200 text-center text-lg max-w-2xl mx-auto">Find the perfect superhero t-shirt that matches your style from our exclusive collection</p>
+          {/* Enhanced hero content */}
+          <div className="relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-white to-yellow-300 mb-4 text-center">
+              Superhero Collection
+            </h1>
+            <p className="text-indigo-200 text-center text-lg max-w-2xl mx-auto">
+              Find the perfect superhero t-shirt that matches your style from our exclusive collection
+            </p>
+          </div>
           
-          {/* Rest of the existing search form */}
+          {/* Improved search form with glow effect */}
           <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto relative">
             <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-yellow-500/5 to-yellow-400/20 rounded-full blur-md animate-pulse" style={{animationDuration: '4s'}}></div>
               <input
                 type="text"
                 className="w-full py-3 pl-12 pr-10 rounded-full bg-indigo-800/60 backdrop-blur-sm border border-indigo-700/50 text-white placeholder-indigo-300 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 transition-all duration-300"
@@ -289,7 +518,7 @@ const ProductsPage = () => {
                 <button
                   type="button"
                   onClick={clearSearch}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-indigo-300 hover:text-white"
+                  className="absolute inset-y-0 right-12 pr-4 flex items-center text-indigo-300 hover:text-white transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -297,7 +526,10 @@ const ProductsPage = () => {
                 </button>
               )}
             </div>
-            <button type="submit" className="absolute right-1 top-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold py-2 px-6 rounded-full transform hover:scale-105 transition-all duration-300">
+            <button 
+              type="submit" 
+              className="absolute right-1 top-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold py-2 px-6 rounded-full transform hover:scale-105 transition-all duration-300 shadow-md shadow-yellow-600/20"
+            >
               Search
             </button>
           </form>
@@ -329,9 +561,10 @@ const ProductsPage = () => {
               Filter Products
             </button>
 
+            {/* Mobile filters with improved styling */}
             {mobileFiltersOpen && (
               <div className="fixed inset-0 z-40 overflow-y-auto p-4 bg-indigo-950/90 backdrop-blur-sm">
-                <div className="bg-gradient-to-b from-indigo-900 to-indigo-950 rounded-lg p-6 max-w-md mx-auto border border-indigo-700/50 shadow-lg shadow-purple-900/30">
+                <div className="bg-gradient-to-b from-indigo-900 to-indigo-950 rounded-lg p-6 max-w-md mx-auto border border-indigo-700/50 shadow-lg shadow-purple-900/30 animate-fadeIn">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-bold text-yellow-300">Filter Products</h2>
                     <button
@@ -458,8 +691,15 @@ const ProductsPage = () => {
             )}
           </div>
 
-          <div className="hidden md:block w-64 bg-gradient-to-b from-indigo-900/80 to-indigo-950/80 backdrop-blur-sm rounded-xl p-6 border border-indigo-700/50 shadow-lg shadow-indigo-900/30 h-fit sticky top-24">
-            <div className="space-y-6">
+          {/* Desktop Filters Sidebar with cosmic glow */}
+          <div className="hidden md:block w-64 bg-gradient-to-b from-indigo-900/80 to-indigo-950/80 backdrop-blur-sm rounded-xl p-6 border border-indigo-700/50 shadow-lg shadow-indigo-900/30 h-fit sticky top-24 relative overflow-hidden">
+            {/* Cosmic overlay for filters sidebar */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl"></div>
+            </div>
+            
+            <div className="space-y-6 relative z-10">
               <div>
                 <h3 className="text-lg font-bold text-yellow-300 mb-3 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -580,25 +820,44 @@ const ProductsPage = () => {
             </div>
           </div>
 
+          {/* Products Display Area */}
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 bg-indigo-900/40 backdrop-blur-sm p-4 rounded-xl border border-indigo-700/30">
-              <div>
-                <h2 className="text-xl font-bold text-white">
-                  {filteredProducts.length} {filteredProducts.length === 1 ? "Product" : "Products"} 
-                  {activeFilters.category && categories.find(c => c.slug === activeFilters.category) && (
-                    <span className="ml-2 text-yellow-300">in {categories.find(c => c.slug === activeFilters.category).name}</span>
+            {/* Product count and sort controls */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 bg-indigo-900/40 backdrop-blur-sm p-4 rounded-xl border border-indigo-700/30 relative overflow-hidden">
+              {/* Glow effect for the header */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 opacity-80"></div>
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  {isLoading ? (
+                    <span className="inline-block w-8 h-8 border-2 border-yellow-400/80 border-t-transparent rounded-full animate-spin mr-2"></span>
+                  ) : null}
+                  {!isLoading && (
+                    <>
+                      <span>{pagination.count}</span> {pagination.count === 1 ? "Product" : "Products"} 
+                      {activeFilters.category && categories.find(c => c.slug === activeFilters.category) && (
+                        <span className="ml-2 text-yellow-300">in {categories.find(c => c.slug === activeFilters.category).name}</span>
+                      )}
+                      {searchTerm && (
+                        <span className="ml-2 text-yellow-300">matching "{searchTerm}"</span>
+                      )}
+                    </>
                   )}
                 </h2>
               </div>
 
-              <div className="mt-4 sm:mt-0 relative">
+              <div className="mt-4 sm:mt-0 relative z-10">
                 <div className="flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
                   </svg>
                   <select
                     value={activeFilters.sortBy}
-                    onChange={(e) => setActiveFilters((prev) => ({ ...prev, sortBy: e.target.value }))}
+                    onChange={handleSortChange}
                     className="bg-indigo-800/80 text-white border border-indigo-700 rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 appearance-none"
                   >
                     {sortOptions.map((option) => (
@@ -616,10 +875,12 @@ const ProductsPage = () => {
               </div>
             </div>
 
+            {/* Products grid with improved loading state */}
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className="bg-indigo-900/40 rounded-lg border border-indigo-700/30 overflow-hidden animate-pulse h-96">
+                  <div key={index} className="bg-indigo-900/40 rounded-lg border border-indigo-700/30 overflow-hidden animate-pulse h-96 relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-800/30 to-purple-900/30 animate-pulse" style={{animationDuration: `${(index % 3) + 2}s`}}></div>
                     <div className="h-64 bg-indigo-800/50 rounded-t-lg"></div>
                     <div className="p-4 space-y-3">
                       <div className="h-4 bg-indigo-800/70 rounded w-3/4"></div>
@@ -636,26 +897,29 @@ const ProductsPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-indigo-900/40 backdrop-blur-sm rounded-lg border border-indigo-700/30">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 mx-auto text-yellow-300 mb-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+              <div className="text-center py-16 bg-indigo-900/40 backdrop-blur-sm rounded-lg border border-indigo-700/30 animate-fadeIn">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-yellow-400/5 rounded-full blur-3xl animate-pulse opacity-70" style={{animationDuration: '3s'}}></div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-16 w-16 mx-auto text-yellow-300 mb-6 relative z-10"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
                 <h3 className="text-2xl font-bold text-white mb-4">No products found</h3>
                 <p className="text-indigo-300 mb-8 max-w-md mx-auto">Try adjusting your filters or search term to find what you're looking for.</p>
                 <button 
                   onClick={clearAllFilters} 
-                  className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold rounded-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center shadow-lg"
+                  className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-300 hover:to-yellow-400 text-indigo-950 font-bold rounded-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center shadow-lg shadow-yellow-800/20"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
@@ -665,16 +929,20 @@ const ProductsPage = () => {
               </div>
             )}
 
+            {/* Enhanced pagination with cosmic styling */}
             {filteredProducts.length > 0 && pagination.pages > 1 && (
               <div className="mt-12 flex justify-center">
-                <nav className="flex items-center space-x-4 bg-indigo-900/40 p-3 px-6 rounded-full backdrop-blur-sm border border-indigo-700/30 shadow-lg">
+                <nav className="flex items-center space-x-4 bg-indigo-900/40 p-3 px-6 rounded-full backdrop-blur-sm border border-indigo-700/30 shadow-lg relative overflow-hidden">
+                  {/* Cosmic glow effect for pagination */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 opacity-50 animate-pulse" style={{animationDuration: '4s'}}></div>
+                  
                   <button 
-                    className={`px-4 py-2 rounded-full ${
+                    className={`px-4 py-2 rounded-full relative z-10 ${
                       pagination.page <= 1 
                         ? "bg-indigo-800/50 text-indigo-400 cursor-not-allowed" 
                         : "bg-indigo-800 text-white hover:bg-indigo-700 transform hover:scale-105 transition-all"
                     }`}
-                    onClick={() => pagination.page > 1 && setPagination(prev => ({...prev, page: prev.page - 1}))}
+                    onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page <= 1}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -682,27 +950,44 @@ const ProductsPage = () => {
                     </svg>
                   </button>
                   
-                  {[...Array(Math.min(pagination.pages, 5))].map((_, i) => (
-                    <button 
-                      key={i} 
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        pagination.page === i + 1 
-                          ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-indigo-950 font-bold transform scale-110 shadow-md" 
-                          : "bg-indigo-800/70 text-white hover:bg-indigo-700 transform hover:scale-105"
-                      }`}
-                      onClick={() => setPagination(prev => ({...prev, page: i + 1}))}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
+                  {/* Show page numbers with proper active state */}
+                  {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+                    // Calculate page number to show (for pagination with many pages)
+                    let pageToShow = i + 1;
+                    if (pagination.pages > 5) {
+                      if (pagination.page > 3 && pagination.page < pagination.pages - 1) {
+                        pageToShow = pagination.page - 2 + i;
+                      } else if (pagination.page >= pagination.pages - 1) {
+                        pageToShow = pagination.pages - 4 + i;
+                      }
+                    }
+                    
+                    // Only show the page if it's valid
+                    if (pageToShow <= pagination.pages) {
+                      return (
+                        <button 
+                          key={i} 
+                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all relative z-10 ${
+                            pagination.page === pageToShow 
+                              ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-indigo-950 font-bold transform scale-110 shadow-md" 
+                              : "bg-indigo-800/70 text-white hover:bg-indigo-700 transform hover:scale-105"
+                          }`}
+                          onClick={() => handlePageChange(pageToShow)}
+                        >
+                          {pageToShow}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })}
                   
                   <button 
-                    className={`px-4 py-2 rounded-full ${
+                    className={`px-4 py-2 rounded-full relative z-10 ${
                       pagination.page >= pagination.pages 
                         ? "bg-indigo-800/50 text-indigo-400 cursor-not-allowed" 
                         : "bg-indigo-800 text-white hover:bg-indigo-700 transform hover:scale-105 transition-all"
                     }`}
-                    onClick={() => pagination.page < pagination.pages && setPagination(prev => ({...prev, page: prev.page + 1}))}
+                    onClick={() => handlePageChange(pagination.page + 1)}
                     disabled={pagination.page >= pagination.pages}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
