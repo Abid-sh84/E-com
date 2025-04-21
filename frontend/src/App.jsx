@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
 import ProfilePage from "./pages/ProfilePage"
 import CheckoutPage from "./pages/CheckoutPage"
+import ResetPasswordPage from "./pages/ResetPasswordPage"
 import { CartProvider } from "./contexts/CartContext"
 import { WishlistProvider } from "./contexts/WishlistContext"
 import { AuthProvider } from "./contexts/AuthContext"
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
               </Routes>
             </main>
             <Footer />

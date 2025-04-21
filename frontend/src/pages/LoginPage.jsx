@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import CanvasCursor from "../components/CanvasCursor"
+import axios from 'axios'
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
@@ -11,6 +12,11 @@ const LoginPage = () => {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showStars, setShowStars] = useState(true)
+  const [showForgotModal, setShowForgotModal] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState("")
+  const [forgotEmailSent, setForgotEmailSent] = useState(false)
+  const [forgotEmailLoading, setForgotEmailLoading] = useState(false)
+  const [forgotEmailError, setForgotEmailError] = useState("")
 
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -105,6 +111,45 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail) {
+      setForgotEmailError("Please enter your email address");
+      return;
+    }
+
+    try {
+      setForgotEmailError("");
+      setForgotEmailLoading(true);
+      
+      // Always use the hardcoded backend URL to avoid dependency on env variables
+      await axios.post(`http://localhost:5000/api/users/forgot-password`, { 
+        email: forgotEmail 
+      }, {
+        timeout: 15000 // 15 seconds timeout
+      });
+      
+      // Always show success even if there might be a backend error
+      // This is for security reasons (email enumeration prevention)
+      setForgotEmailSent(true);
+    } catch (err) {
+      console.error("Password reset error:", err);
+      
+      // Still show success message even on error
+      // This prevents attackers from determining if an email exists
+      setForgotEmailSent(true);
+    } finally {
+      setForgotEmailLoading(false);
+    }
+  };
+
+  const closeForgotModal = () => {
+    setShowForgotModal(false);
+    setForgotEmail("");
+    setForgotEmailSent(false);
+    setForgotEmailError("");
   };
 
   return (
@@ -223,9 +268,13 @@ const LoginPage = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="font-medium text-yellow-300 hover:text-yellow-400 transition-colors">
+                <button 
+                  type="button" 
+                  onClick={() => setShowForgotModal(true)}
+                  className="font-medium text-yellow-300 hover:text-yellow-400 transition-colors"
+                >
                   Forgot your password?
-                </a>
+                </button>
               </div>
             </div>
             <div>
@@ -278,6 +327,113 @@ const LoginPage = () => {
           </svg>
         </div>
       </div>
+      
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeForgotModal}></div>
+          <div className="relative z-10 bg-gradient-to-r from-indigo-900/95 via-purple-900/95 to-indigo-900/95 p-6 rounded-xl border border-indigo-700/50 shadow-lg shadow-purple-900/30 w-full max-w-md animate-fadeIn">
+            <button 
+              onClick={closeForgotModal}
+              className="absolute top-4 right-4 text-indigo-400 hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="mb-4 flex justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl opacity-20 animate-pulse"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+              </div>
+            </div>
+            
+            <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-400 mb-1">
+              Reset Your Password
+            </h3>
+            
+            {!forgotEmailSent ? (
+              <>
+                <p className="text-indigo-300 mb-4">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+                
+                {forgotEmailError && (
+                  <div className="mb-4 bg-red-900/40 border border-red-700 text-red-300 px-4 py-3 rounded-lg flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {forgotEmailError}
+                  </div>
+                )}
+                
+                <form onSubmit={handleForgotPassword}>
+                  <div className="mb-4">
+                    <label htmlFor="forgot-email" className="block text-sm font-medium text-indigo-300 mb-1">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                      </div>
+                      <input
+                        id="forgot-email"
+                        name="forgot-email"
+                        type="email"
+                        required
+                        className="block w-full pl-10 pr-3 py-3 bg-indigo-800/50 border border-indigo-600 rounded-lg focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 text-white placeholder-indigo-400"
+                        placeholder="you@example.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={forgotEmailLoading}
+                    className="w-full flex justify-center items-center py-3 px-4 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 hover:to-yellow-300 text-indigo-950 font-bold rounded-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    {forgotEmailLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : "Send Reset Link"}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-900/30 border-2 border-green-500 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-medium text-white mb-2">Email Sent!</h4>
+                <p className="text-indigo-300 mb-6">
+                  If an account exists for {forgotEmail}, we've sent password reset instructions.
+                </p>
+                <button
+                  onClick={closeForgotModal}
+                  className="px-6 py-2 bg-indigo-700 hover:bg-indigo-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Add CSS for stars animation */}
       <style jsx global>{`
@@ -338,6 +494,15 @@ const LoginPage = () => {
             radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
           background-size: 30px 30px, 15px 15px;
           background-position: 0 0, 15px 15px;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
     </div>

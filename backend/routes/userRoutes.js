@@ -11,6 +11,9 @@ import {
   removeFromWishlist,
   getWishlist,
   getUsers,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 } from '../controllers/userController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -39,5 +42,10 @@ router.route('/wishlist')
 
 router.route('/wishlist/:id')
   .delete(protect, removeFromWishlist);
+
+// Password reset routes
+router.post('/forgot-password', forgotPassword);
+router.get('/reset-password/:token/verify', verifyResetToken);
+router.post('/reset-password/:token', resetPassword);
 
 export default router;

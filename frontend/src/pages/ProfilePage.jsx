@@ -7,16 +7,16 @@ import { useAuth } from "../contexts/AuthContext"
 const avatars = [
   { id: 1, name: "Superman", image: "https://tse1.mm.bing.net/th/id/OIP.PKMxKaVtp0t5pCSpA-eIcQHaLH?rs=1&pid=ImgDetMain" },
   { id: 2, name: "Batman", image: "https://comicvine.gamespot.com/a/uploads/original/11125/111253442/4897645-batman.jpg " },
-  { id: 3, name: "Spider-Man", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/spiderman_avatar_bfyiei.png" },
+  { id: 3, name: "Spider-Man", image: "https://4kwallpapers.com/images/wallpapers/marvels-spider-man-2048x2048-13495.jpg" },
   { id: 4, name: "Wonder Woman", image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7a3e204f-65f8-4a69-a257-052f82738fd8/dfcsoxq-b87b8d58-4209-45f4-9516-4d2c8cffd5f3.png/v1/fill/w_512,h_768,q_80,strp/wonder_woman_closeup_by_digitaltoadphotos_dfcsoxq-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzY4IiwicGF0aCI6IlwvZlwvN2EzZTIwNGYtNjVmOC00YTY5LWEyNTctMDUyZjgyNzM4ZmQ4XC9kZmNzb3hxLWI4N2I4ZDU4LTQyMDktNDVmNC05NTE2LTRkMmM4Y2ZmZDVmMy5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.P_hg4D87brx4wR7pRTixxvObudv_uUXJf8kPLIqk8Lo" },
-  { id: 5, name: "Iron Man", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447072/ironman_avatar_q5damd.png" },
-  { id: 6, name: "Captain America", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/captain_america_avatar_yuwoay.png" },
-  { id: 7, name: "Black Widow", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/black_widow_avatar_vftmap.png" },
-  { id: 8, name: "Hulk", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447072/hulk_avatar_ddfg7j.png" },
-  { id: 9, name: "Thor", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/thor_avatar_f82ndd.png" },
-  { id: 10, name: "Captain Marvel", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447071/captain_marvel_avatar_ze1ozd.png" },
-  { id: 11, name: "Wolverine", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/wolverine_avatar_ltqbwk.png" },
-  { id: 12, name: "Doctor Strange", image: "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447072/dr_strange_avatar_yh1zpb.png" }
+  { id: 5, name: "Iron Man", image: "https://img.freepik.com/premium-photo/iron-man-avenger-illustrated-vector-design_973047-59436.jpg" },
+  { id: 6, name: "Captain America", image: "https://img.freepik.com/premium-vector/captain-america-mascot-esports-gaming-logo-design-marvel-world-illustration_196854-1784.jpg?w=2000" },
+  { id: 7, name: "Black Widow", image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/9f3f9bd9-0673-4276-bb34-71ece2a5820e/dfm8yq2-1f994f89-0b81-4328-b6a3-2b4a18992ec3.png/v1/fill/w_1920,h_1920,q_80,strp/black_widow__ai_art__by_3d1viner_dfm8yq2-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTkyMCIsInBhdGgiOiJcL2ZcLzlmM2Y5YmQ5LTA2NzMtNDI3Ni1iYjM0LTcxZWNlMmE1ODIwZVwvZGZtOHlxMi0xZjk5NGY4OS0wYjgxLTQzMjgtYjZhMy0yYjRhMTg5OTJlYzMucG5nIiwid2lkdGgiOiI8PTE5MjAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.XCjlX2_xBjdo0--C_MaVBETCkwT5_dslWEPVonbhkJE" },
+  { id: 8, name: "Hulk", image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/69b81377-6df1-4562-821d-f771093cc41e/dfvdt4f-f3f83cd4-9b4c-481e-b149-7d714595d449.jpg/v1/fill/w_894,h_894,q_70,strp/incredible_hulk_portrait_by_monsterdesignz80_dfvdt4f-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzY5YjgxMzc3LTZkZjEtNDU2Mi04MjFkLWY3NzEwOTNjYzQxZVwvZGZ2ZHQ0Zi1mM2Y4M2NkNC05YjRjLTQ4MWUtYjE0OS03ZDcxNDU5NWQ0NDkuanBnIiwiaGVpZ2h0IjoiPD0xOTIwIiwid2lkdGgiOiI8PTE5MjAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uud2F0ZXJtYXJrIl0sIndtayI6eyJwYXRoIjoiXC93bVwvNjliODEzNzctNmRmMS00NTYyLTgyMWQtZjc3MTA5M2NjNDFlXC9tb25zdGVyZGVzaWduejgwLTQucG5nIiwib3BhY2l0eSI6OTUsInByb3BvcnRpb25zIjowLjQ1LCJncmF2aXR5IjoiY2VudGVyIn19.F7S5lwS2sNLP9OQP6qu8kX8NRmxovHKKUp8GqiT55x0" },
+  { id: 9, name: "Thor", image: "https://cdn.midjourney.com/9f322c04-85bc-438b-9ee8-29d40bf8a643/0_1.webp" },
+  { id: 10, name: "Captain Marvel", image: "https://wallpaperaccess.com/full/2705874.jpg" },
+  { id: 11, name: "Wolverine", image: "https://tse4.mm.bing.net/th/id/OIP.8203R96K4N8L5528rC5mhwHaHa?rs=1&pid=ImgDetMain" },
+  { id: 12, name: "Doctor Strange", image: "https://tse3.mm.bing.net/th/id/OIP.3sG7TymeOJ6TF-1X3em4JAHaHa?rs=1&pid=ImgDetMain" }
 ]
 
 const DEFAULT_AVATAR = "https://res.cloudinary.com/dkmakj50l/image/upload/v1744447073/superman_avatar_geflb0.png"
@@ -507,61 +507,108 @@ const ProfilePage = () => {
                     </h2>
 
                     {orders.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-indigo-800/70">
-                          <thead>
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Mission ID
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Date
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Items
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Total
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Status
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-indigo-900/30 divide-y divide-indigo-800/50">
-                            {orders.map((order) => (
-                              <tr key={order.id} className="hover:bg-indigo-800/30 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{order.id}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">
-                                  {new Date(order.date).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">{order.items}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">
-                                  ${order.total.toFixed(2)}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                      order.status === "Delivered"
-                                        ? "bg-green-900/50 text-green-300 border border-green-700/50"
-                                        : order.status === "Processing"
-                                          ? "bg-yellow-900/50 text-yellow-300 border border-yellow-700/50"
-                                          : "bg-blue-900/50 text-blue-300 border border-blue-700/50"
-                                    }`}
-                                  >
-                                    {order.status}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                  <button className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium">View Details</button>
-                                </td>
+                      <div>
+                        {/* Desktop view - Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                          <table className="min-w-full divide-y divide-indigo-800/70">
+                            <thead>
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Mission ID
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Date
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Items
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Total
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-yellow-300 uppercase tracking-wider">
+                                  Actions
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="bg-indigo-900/30 divide-y divide-indigo-800/50">
+                              {orders.map((order) => (
+                                <tr key={order.id} className="hover:bg-indigo-800/30 transition-colors">
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{order.id}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">
+                                    {new Date(order.date).toLocaleDateString()}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">{order.items}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-300">
+                                    ${order.total.toFixed(2)}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                        order.status === "Delivered"
+                                          ? "bg-green-900/50 text-green-300 border border-green-700/50"
+                                          : order.status === "Processing"
+                                            ? "bg-yellow-900/50 text-yellow-300 border border-yellow-700/50"
+                                            : "bg-blue-900/50 text-blue-300 border border-blue-700/50"
+                                      }`}
+                                    >
+                                      {order.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium">View Details</button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        
+                        {/* Mobile view - Cards */}
+                        <div className="grid grid-cols-1 gap-4 md:hidden">
+                          {orders.map((order) => (
+                            <div 
+                              key={order.id} 
+                              className="bg-indigo-900/30 rounded-lg p-4 border border-indigo-800/50 hover:bg-indigo-800/30 transition-colors"
+                            >
+                              <div className="flex justify-between items-center mb-3">
+                                <h3 className="font-bold text-white">{order.id}</h3>
+                                <span
+                                  className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                                    order.status === "Delivered"
+                                      ? "bg-green-900/50 text-green-300 border border-green-700/50"
+                                      : order.status === "Processing"
+                                        ? "bg-yellow-900/50 text-yellow-300 border border-yellow-700/50"
+                                        : "bg-blue-900/50 text-blue-300 border border-blue-700/50"
+                                  }`}
+                                >
+                                  {order.status}
+                                </span>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                                <div>
+                                  <p className="text-indigo-400">Date</p>
+                                  <p className="text-white">{new Date(order.date).toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-indigo-400">Items</p>
+                                  <p className="text-white">{order.items}</p>
+                                </div>
+                                <div>
+                                  <p className="text-indigo-400">Total</p>
+                                  <p className="text-white">${order.total.toFixed(2)}</p>
+                                </div>
+                              </div>
+                              
+                              <button className="w-full mt-2 py-2 bg-indigo-800/50 hover:bg-indigo-700/50 text-yellow-400 hover:text-yellow-300 rounded-md transition-colors font-medium text-sm">
+                                View Order Details
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-16 bg-indigo-900/30 rounded-lg border border-indigo-800/50">

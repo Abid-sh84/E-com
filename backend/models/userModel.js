@@ -26,6 +26,8 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     wishlist: [
       {
         type: mongoose.Schema.Types.ObjectId,

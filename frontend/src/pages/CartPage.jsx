@@ -1,14 +1,15 @@
 "use client"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useCart } from "../contexts/CartContext"
 import { useState, useEffect } from "react"
 
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateCartItemQuantity, clearCart } = useCart()
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart()
   const [showStars, setShowStars] = useState(true)
   const [couponCode, setCouponCode] = useState("")
   const [couponApplied, setCouponApplied] = useState(false)
   const [discountAmount, setDiscountAmount] = useState(0)
+  const navigate = useNavigate()
   
   // Calculate cart subtotal
   const subtotal = cartItems.reduce((total, item) => {
@@ -57,13 +58,13 @@ const CartPage = () => {
     };
   }, [showStars]);
 
-  const handleRemoveItem = (id) => {
-    removeFromCart(id)
+  const handleRemoveItem = (id, size) => {
+    removeFromCart(id, size)
   }
 
-  const handleQuantityChange = (id, newQuantity) => {
+  const handleQuantityChange = (id, size, newQuantity) => {
     if (newQuantity >= 1 && newQuantity <= 10) {
-      updateCartItemQuantity(id, newQuantity)
+      updateQuantity(id, size, newQuantity)
     }
   }
 
@@ -76,6 +77,10 @@ const CartPage = () => {
     } else {
       alert("Invalid coupon code")
     }
+  }
+
+  const handleCheckout = () => {
+    navigate('/checkout')
   }
 
   if (cartItems.length === 0) {
@@ -170,7 +175,7 @@ const CartPage = () => {
               </div>
               
               {cartItems.map((item) => (
-                <div key={item.id} className="p-6 border-b border-indigo-700/50 group">
+                <div key={`${item.id}-${item.selectedSize}`} className="p-6 border-b border-indigo-700/50 group">
                   <div className="flex flex-col sm:flex-row items-center">
                     <div className="flex-shrink-0 w-24 h-24 mb-4 sm:mb-0 relative overflow-hidden rounded-lg">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 group-hover:opacity-75 transition-opacity"></div>
@@ -220,8 +225,9 @@ const CartPage = () => {
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center">
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                            onClick={() => handleQuantityChange(item.id, item.selectedSize, item.quantity - 1)}
                             className="w-8 h-8 rounded-l-md bg-indigo-800 text-white flex items-center justify-center hover:bg-indigo-700"
+                            disabled={item.quantity <= 1}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -231,8 +237,9 @@ const CartPage = () => {
                             {item.quantity}
                           </div>
                           <button
-                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                            onClick={() => handleQuantityChange(item.id, item.selectedSize, item.quantity + 1)}
                             className="w-8 h-8 rounded-r-md bg-indigo-800 text-white flex items-center justify-center hover:bg-indigo-700"
+                            disabled={item.quantity >= 10}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -241,7 +248,7 @@ const CartPage = () => {
                         </div>
                         
                         <button
-                          onClick={() => handleRemoveItem(item.id)}
+                          onClick={() => handleRemoveItem(item.id, item.selectedSize)}
                           className="text-red-400 hover:text-red-300 transition-colors group"
                         >
                           <div className="flex items-center">
@@ -338,7 +345,10 @@ const CartPage = () => {
                 )}
                 
                 <div className="mt-6">
-                  <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-md transform hover:scale-105 transition-all duration-300 border border-indigo-500/30 shadow-lg shadow-purple-900/30 flex items-center justify-center">
+                  <button 
+                    onClick={handleCheckout}
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-md transform hover:scale-105 transition-all duration-300 border border-indigo-500/30 shadow-lg shadow-purple-900/30 flex items-center justify-center"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>

@@ -1,6 +1,9 @@
 import axios from 'axios';
 
+// Use Vite's environment variable format
 const API_URL = 'http://localhost:5000/api';
+
+console.log('API URL being used:', API_URL);
 
 // Create an axios instance for auth requests
 const authClient = axios.create({
@@ -58,15 +61,26 @@ export const login = async (email, password) => {
  */
 export const register = async (name, email, password) => {
   try {
+    // Debug log to trace the API call
+    console.log('Attempting registration with:', { name, email });
+    
+    // Use correct endpoint: '/users' instead of '/users/register'
     const response = await authClient.post('/users', { name, email, password });
     
     if (response.data && response.data.token) {
       setAuthToken(response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));
+      console.log('Registration successful, token set');
     }
     
     return response.data;
   } catch (error) {
+    // Add better error handling for known error cases
+    if (error.response?.status === 400 && error.response?.data?.message?.includes('already exists')) {
+      throw new Error('This email is already registered. Please try logging in instead.');
+    }
+    
+    console.error('Registration API error:', error.response?.data || error.message);
     throw new Error(
       error.response?.data?.message || 'Failed to register. Please try again.'
     );

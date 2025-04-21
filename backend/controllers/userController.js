@@ -1,6 +1,37 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
 import generateToken from '../utils/generateToken.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
+// Create transporter using the EXACT same working configuration as testEmailDirect.js
+const createTransporter = () => {
+  console.log('Setting up email transport with Gmail service...');
+  return nodemailer.createTransport({
+    service: 'gmail',  // Use lowercase 'gmail' to match your working test script
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD, 
+    }
+  });
+};
+
+// Initialize email transporter
+let transporter;
+try {
+  transporter = createTransporter();
+  
+  // Test connection
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('SMTP Connection Error:', error);
+    } else {
+      console.log("SMTP server connection verified successfully");
+    }
+  });
+} catch (err) {
+  console.error('Error initializing email transport:', err);
+}
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
@@ -280,6 +311,196 @@ const getUsers = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
+// @desc    Request password reset
+// @route   POST /api/users/forgot-password
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  
+  console.log('Received request to reset password for:', email);
+
+  // Always recreate transporter to ensure fresh connection
+  try {
+    transporter = createTransporter();
+  } catch (err) {
+    console.error('Failed to create email transporter:', err);
+  }
+  
+  const user = await User.findOne({ email });
+
+  // Always return success response to prevent email enumeration
+  if (!user) {
+    console.log('User not found:', email);
+    return res.status(200).json({
+      message: 'If that email exists in our system, we\'ve sent a password reset link.',
+    });
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+
+  // Hash token before saving to database
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set token expiry (30 minutes)
+  const resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+
+  // Update user with reset token details
+  user.resetPasswordToken = resetPasswordToken;
+  user.resetPasswordExpire = resetPasswordExpire;
+
+  await user.save();
+
+  // Create reset URL (frontend URL that can handle token)
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+  // Send response first to prevent timeout
+  res.status(200).json({
+    message: 'If that email exists in our system, we\'ve sent a password reset link.',
+  });
+  
+  try {
+    console.log('Attempting to send email to:', user.email);
+    
+    // Use the exact same format as your working test script
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || `"Starry Comics" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: 'Password Reset Request',
+      text: `
+Password Reset Request
+
+Hello Hero,
+
+You are receiving this email because you (or someone else) has requested to reset your password.
+
+Please use this link to reset your password: ${resetUrl}
+(Link expires in 30 minutes)
+
+If you did not request this, please ignore this email and your password will remain unchanged.
+
+Regards,
+The Starry Comics Team
+      `,
+      html: `
+      <div style="background-color: #1a104d; color: #e9e9ff; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;">
+        <h2 style="color: #ffc107; text-align: center; margin-bottom: 20px;">Password Reset Request</h2>
+        <p>Hello Hero,</p>
+        <p>You are receiving this email because you (or someone else) has requested to reset your password.</p>
+        <p>Please click the button below to set a new password. This link will expire in 30 minutes.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-image: linear-gradient(to right, #ffc107, #ffca28); color: #1a104d; font-weight: bold; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">Reset Password</a>
+        </div>
+        <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+        <p>Regards,<br>The Starry Comics Team</p>
+        <p>If the button doesn't work, copy and paste this link into your browser: ${resetUrl}</p>
+      </div>
+      `
+    });
+    
+    console.log('Email sent successfully!');
+    console.log('Message ID:', info.messageId);
+  } catch (error) {
+    console.error('Email send error:', error);
+    
+    // Reset the token fields if email fails
+    try {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save();
+    } catch (saveError) {
+      console.error('Error clearing token after email failure:', saveError);
+    }
+  }
+});
+
+// @desc    Verify reset password token
+// @route   GET /api/users/reset-password/:token/verify
+// @access  Public
+const verifyResetToken = asyncHandler(async (req, res) => {
+  // Get token from URL and hash it
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  // Find user with matching token and valid expiry
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired token');
+  }
+
+  res.status(200).json({ valid: true });
+});
+
+// @desc    Reset password
+// @route   POST /api/users/reset-password/:token
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+  // Get token from URL and hash it
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  // Find user with matching token and valid expiry
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired token');
+  }
+
+  // Set new password and clear reset tokens
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  // First send success response
+  res.status(200).json({
+    message: 'Password reset successful',
+  });
+  
+  // Then attempt to send confirmation email (non-blocking)
+  try {
+    // Always recreate transporter for confirmation email too
+    transporter = createTransporter();
+    
+    const message = `
+      <div style="background-color: #1a104d; color: #e9e9ff; padding: 20px; border-radius: 10px; font-family: Arial, sans-serif;">
+        <h2 style="color: #4caf50; text-align: center; margin-bottom: 20px;">Password Successfully Reset</h2>
+        <p>Hello Hero,</p>
+        <p>Your password has been successfully reset.</p>
+        <p>If you did not make this change, please contact our support team immediately.</p>
+        <p>Regards,<br>The Starry Comics Team</p>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM || `"Starry Comics" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: 'Your Password Has Been Reset',
+      html: message,
+    });
+  } catch (error) {
+    console.error('Confirmation email error:', error);
+    // We don't want to fail the request if only the confirmation email fails
+  }
+});
+
 export {
   authUser,
   registerUser,
@@ -292,4 +513,7 @@ export {
   removeFromWishlist,
   getWishlist,
   getUsers,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 };

@@ -26,7 +26,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center mb-5 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-yellow-400 rounded-full blur-sm opacity-30 group-hover:opacity-60 transition-opacity"></div>
-                <img className="h-10 w-auto relative z-10" src="/images/logo.png" alt="Starry Comics" />
+                <img className="h-7 w-auto relative z-10" src="https://wallpaper.dog/large/10844735.png" alt="Starry Comics" />
               </div>
               <span className="ml-3 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-purple-400 to-blue-400">Starforge Tees</span>
             </Link>
