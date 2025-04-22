@@ -46,8 +46,8 @@ This project is built with:
 ### 📦 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/e-com.git
-cd e-com
+git clone https://github.com/your-username/E-com.git
+cd E-com
 ```
 ## Setup frontend
 ```bash
