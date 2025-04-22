@@ -46,8 +46,8 @@ This project is built with:
 ### 📦 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/e-com.git
-cd e-com
+git clone https://github.com/your-username/E-com.git
+cd E-com
 ```
 ## Setup frontend
 ```bash
@@ -69,8 +69,26 @@ npm run dev
 PORT=5000
 MONGO_URI=your_mongodb_atlas_url
 JWT_SECRET=your_seceret_key
+
+# Gmail settings - Using App Password is required when 2FA is enabled
+EMAIL_USER=Your email
+EMAIL_PASSWORD=Your app password
+EMAIL_SERVICE=gmail
+EMAIL_FROM="Starry Comics <your email>"
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL_SECURE=true
+
+# Google OAuth Configuration
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+GOOGLE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+GOOGLE_TOKEN_URI=https://oauth2.googleapis.com/token
+GOOGLE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+GOOGLE_REDIRECT_URI=http://localhost:5000/api/users/google/callback
+FRONTEND_URL=http://localhost:5173
+JAVASCRIPT_ORIGINS=http://localhost:5173,http://localhost:5000
+
 ```
 ## Run the backend
 
