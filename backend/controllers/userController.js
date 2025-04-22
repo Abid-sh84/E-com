@@ -36,13 +36,21 @@ try {
   console.error('Error initializing email transport:', err);
 }
 
-// Configure the Google OAuth client
-console.log('Setting up Google OAuth client with credentials:');
-console.log('Client ID:', process.env.GOOGLE_CLIENT_ID);
-console.log('Redirect URI:', process.env.GOOGLE_REDIRECT_URI);
+// Configure the Google OAuth client with secure logging
+console.log('Setting up Google OAuth client...');
 
-// Make sure we have the client ID before creating the OAuth client
-if (!process.env.GOOGLE_CLIENT_ID) {
+// Function to mask sensitive information
+const maskSensitiveInfo = (value, showChars = 4) => {
+  if (!value) return '[NOT SET]';
+  if (value.length <= showChars * 2) return '[SET]';
+  return `${value.substring(0, showChars)}...${value.substring(value.length - showChars)}`;
+};
+
+// Log with masked information
+if (process.env.GOOGLE_CLIENT_ID) {
+  console.log('Client ID:', maskSensitiveInfo(process.env.GOOGLE_CLIENT_ID));
+  console.log('Redirect URI configured:', process.env.GOOGLE_REDIRECT_URI ? '✓' : '✗');
+} else {
   console.error('ERROR: GOOGLE_CLIENT_ID environment variable is not set or empty!');
 }
 
@@ -63,7 +71,7 @@ const googleAuth = asyncHandler(async (req, res) => {
       throw new Error('Google Client ID is not configured. Please check your environment variables.');
     }
 
-    console.log('Google auth initiated with client ID:', process.env.GOOGLE_CLIENT_ID);
+    console.log('Google auth initiated');
     
     // Generate auth URL with explicit parameters to ensure all required fields are present
     const authorizeUrl = oAuth2Client.generateAuthUrl({
@@ -77,7 +85,7 @@ const googleAuth = asyncHandler(async (req, res) => {
       client_id: process.env.GOOGLE_CLIENT_ID // Explicitly include client_id
     });
     
-    console.log('Full Google auth URL:', authorizeUrl);
+    console.log('Google auth URL generated successfully');
     
     // Redirect to Google's OAuth page
     res.redirect(authorizeUrl);
@@ -98,11 +106,11 @@ const googleCallback = asyncHandler(async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?error=${encodeURIComponent('No authorization code received')}`);
     }
     
-    console.log('Received auth code:', code);
-    console.log('Google credentials being used:');
-    console.log('Client ID:', process.env.GOOGLE_CLIENT_ID);
-    console.log('Client Secret:', process.env.GOOGLE_CLIENT_SECRET ? '[SET]' : '[MISSING]'); // Don't log the actual secret
-    console.log('Redirect URI:', process.env.GOOGLE_REDIRECT_URI);
+    console.log('Auth code received');
+    console.log('Google credentials verification:');
+    console.log('Client ID:', maskSensitiveInfo(process.env.GOOGLE_CLIENT_ID));
+    console.log('Client Secret:', process.env.GOOGLE_CLIENT_SECRET ? '[SET]' : '[MISSING]');
+    console.log('Redirect URI configured:', process.env.GOOGLE_REDIRECT_URI ? '✓' : '✗');
     
     // Use axios for direct token exchange instead of OAuth2Client
     const axios = (await import('axios')).default;
@@ -152,7 +160,10 @@ const googleCallback = asyncHandler(async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?error=${encodeURIComponent('No email received from Google')}`);
     }
     
-    console.log('User data received from Google:', { name: userData.name, email: userData.email });
+    console.log('User data received from Google:', { 
+      name: userData.name,
+      email: maskSensitiveInfo(userData.email, 2) // Only show first 2 chars of email
+    });
     
     // Check if user exists
     let user = await User.findOne({ email: userData.email });
