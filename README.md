@@ -9,8 +9,6 @@ An immersive e-commerce web application for purchasing superhero-themed T-shirts
 - Product browsing, filtering, and search  
 - Google-based user authentication  
 - Cart, wishlist, and user profile  
-- Admin dashboard for managing products, orders, and users  
-- Secure checkout (Stripe, PayPal, Razorpay)  
 - Fully responsive design  
 
 ---
